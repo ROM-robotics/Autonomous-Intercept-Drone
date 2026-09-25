@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>uav_vision_png</name>
+  <version>1.0.0</version>
+  <description>
+    Vision-based Proportional Navigation Guidance (PNG) for UAV interception.
+    Subscribes to /camera_detect_result (uav_common_msg/RectMsg) to compute
+    LOS angles purely from pixel data, then commands px4_1 to intercept the
+    target UAV (px4_2) controlled by uav_target_sim.
+    Target GPS position is read ONLY for statistics/logging, NOT for guidance.
+  </description>
+  <maintainer email="developer@uav.local">uav_dev</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>px4_msgs</depend>
+  <depend>uav_common_msg</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

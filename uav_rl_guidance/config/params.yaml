@@ -1,0 +1,31 @@
+uav_rl_guidance:
+  ros__parameters:
+    # ---- 策略模型 (ONNX Runtime) ----
+    model_path: "/home/verser/ros2_ws/src/uav_rl_guidance/models/policy.onnx"
+    # true: 不加载策略，全程使用内置 PNG（A/B 基线模式，与 uav_vision_png 等价）
+    fallback_png: false
+
+    # ---- 相机内参（与 uav_vision_png 一致）----
+    focal_length: 1397.2
+    image_width:  1920
+    image_height: 1080
+
+    # ---- PNG 回退参数（与 uav_vision_png/config/params.yaml 一致）----
+    kv:    4.0
+    kz:    4.0
+    speed_cmd: 5.0
+    d_gain: 1.0
+    k1_yaw: 0.0005
+    k2_yaw: 0.0002
+    k_ey: 0.012
+
+    # ---- 起飞参数 ----
+    standby_altitude: -6.0
+
+    # ---- 目标丢失阈值（按 60Hz 检测帧计数，与 C++ 口径一致）----
+    coast_thresh: 30
+    lost_thresh: 90
+
+    # ---- 统计参数 ----
+    hit_radius: 0.8
+    csv_path: "/home/verser/ros2_ws/rl_intercept_stats.csv"

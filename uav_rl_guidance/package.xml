@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>uav_rl_guidance</name>
+  <version>0.2.0</version>
+  <description>
+    Learned guidance law (GRU policy) for vision-based UAV interception — C++ implementation.
+    Uses ONNX Runtime for model inference (zero PyTorch dependency).
+    Drop-in replacement for uav_vision_png: same topics, same state machine,
+    same CSV statistics format. Built-in PNG fallback on policy anomaly (watchdog)
+    or when fallback_png:=true (A/B baseline mode).
+  </description>
+  <maintainer email="developer@uav.local">uav_dev</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>px4_msgs</depend>
+  <depend>uav_common_msg</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

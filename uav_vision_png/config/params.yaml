@@ -1,0 +1,51 @@
+uav_vision_png:
+  ros__parameters:
+    # ---- 相机内参（IMX214 可见光相机，双目 OAK-D Lite）----
+    # SDF: horizontal_fov=1.204 rad, image=1920x1080
+    # focal_length = (width/2) / tan(fov/2) = 960 / tan(0.602) = 1397.2 px
+    focal_length: 1397.2
+    image_width:  1920
+    image_height: 1080
+
+    # ---- 比例导引参数 ----
+    # 导航增益 N（kv/kz），与 los_control.hpp 中 kv=7 kz=7 同量级
+    # 视觉 PNG 用 4.0，可根据实际仿真效果调整
+    N_png: 4.0
+    kv:    4.0
+    kz:    4.0
+
+    # 期望冲击速度上限 (m/s)
+    speed_cmd: 5.0
+
+    # 速度增量增益，减小可避免急剧加速导致大幅俯仰
+    d_gain: 1.0
+
+    # ---- FOV 保持器（主动偏航跟踪）----
+    # 将像素误差 ex 转化为偏航角速率 [rad/s]
+    # 图像宽 1920px，最大误差 960px，期望最大偏航率 0.8 rad/s
+    # k1_yaw — P 比例项 k2_yaw — D 微分项
+    # k1_yaw = 0.8 / 960 ≈ 0.0008
+    k1_yaw: 0.0005
+    k2_yaw: 0.0002
+
+    # ---- 垂直视场补偿（抵消前飞低头导致相机下倾）----
+    # ey<0 表示目标在画面上方，补偿 vz_cmd += k_ey * ey（使无人机上升）
+    # 图像高 1080px，最大误差 540px，期望最大补偿 3 m/s（触碰限幅上限）
+    # k_ey = 0.012，ey=-300px → 补偿 -3.6m/s（限幅后 -3m/s），强力防止目标跑出画面上方
+    k_ey: 0.012
+
+    # ---- 起飞参数 ----
+    # NED z（负值 = 上升），目标待机高度 5m
+    standby_altitude: -6.0
+
+    # ---- 目标丢失阈值 ----
+    # 惯性续飞阈值：丢失帧数低于此值时保持上一帧速度继续飞行（约 0.5s@30Hz检测）
+    coast_thresh: 30
+    # 悬停阈值：丢失帧数超过此值才真正切换 TRACK_LOST 悬停
+    lost_thresh: 90
+
+    # ---- 统计参数 ----
+    # 命中判定半径 (m)
+    hit_radius: 0.8
+    # CSV 输出路径
+    csv_path: "/home/verser/ros2_ws/vpng_intercept_stats.csv"

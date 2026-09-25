@@ -1,0 +1,20 @@
+{
+  "feature_version": 1,
+  "obs_dim": 15,
+  "act_dim": 4,
+  "gru_hidden": 128,
+  "action_decode": {
+    "dv_angle_max": 1.2,
+    "speed_min": 2.0,
+    "speed_cmd": 5.0,
+    "yaw_rate_max": 1.0,
+    "elev_clamp": 0.7853981633974483
+  },
+  "camera": {
+    "focal_length": 1397.2,
+    "image_width": 1920,
+    "image_height": 1080
+  },
+  "source_ckpt": "/home/verser/Python/guidance_rl/checkpoints/rl_policy.pt",
+  "ckpt_hit_rate": 0.97
+}
