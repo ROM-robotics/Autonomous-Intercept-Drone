@@ -338,7 +338,7 @@ RLGuidanceNode::RLGuidanceNode()
 {
     // ---- 声明参数 ----
     this->declare_parameter("model_path",
-        "/home/verser/ros2_ws/src/uav_rl_guidance/models/policy.onnx");
+        "/home/hmue_gyi/ros2_ws/src/uav_rl_guidance/models/policy.onnx");
     this->declare_parameter("fallback_png", false);
     this->declare_parameter("focal_length", 1397.2f);
     this->declare_parameter("image_width", 1920);
@@ -355,7 +355,7 @@ RLGuidanceNode::RLGuidanceNode()
     this->declare_parameter("lost_thresh", 90);
     this->declare_parameter("hit_radius", 0.8f);
     this->declare_parameter("csv_path",
-        "/home/verser/ros2_ws/rl_intercept_stats.csv");
+        "/home/hmue_gyi/ros2_ws/rl_intercept_stats.csv");
     this->declare_parameter("bench_test", false);
     this->declare_parameter("dv_angle_max", 1.2f);
 

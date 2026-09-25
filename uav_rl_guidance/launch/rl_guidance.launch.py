@@ -23,7 +23,7 @@ def generate_launch_description():
         DeclareLaunchArgument("bench_test", default_value="false",
                               description="true = 跳过起飞，直接 SEARCHING（台架调试）"),
         DeclareLaunchArgument("csv_path",
-                              default_value="/home/verser/ros2_ws/rl_intercept_stats.csv"),
+                              default_value="/home/hmue_gyi/ros2_ws/rl_intercept_stats.csv"),
         Node(
             package="uav_rl_guidance",
             executable="uav_rl_guidance",

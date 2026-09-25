@@ -61,9 +61,15 @@ target_link_libraries(uav_vision_dectect
         ${OpenCV_LIBS}
         ${OpenMP_CXX_LIBRARIES}
         ${ONNXRUNTIME_LIB}
-        ${ONNXRUNTIME_CUDA_LIB}
-        ${ONNXRUNTIME_SHARED_LIB}
 )
+
+if(ONNXRUNTIME_CUDA_LIB)
+  target_link_libraries(uav_vision_dectect ${ONNXRUNTIME_CUDA_LIB})
+endif()
+
+if(ONNXRUNTIME_SHARED_LIB)
+  target_link_libraries(uav_vision_dectect ${ONNXRUNTIME_SHARED_LIB})
+endif()
 
 #添加节点的依赖
 ament_target_dependencies(uav_vision_dectect
@@ -79,4 +85,3 @@ install(TARGETS
         uav_vision_dectect
         DESTINATION lib/${PROJECT_NAME}
 )
-

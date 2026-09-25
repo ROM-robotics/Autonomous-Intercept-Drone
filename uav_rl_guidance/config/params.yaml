@@ -1,7 +1,7 @@
 uav_rl_guidance:
   ros__parameters:
     # ---- 策略模型 (ONNX Runtime) ----
-    model_path: "/home/verser/ros2_ws/src/uav_rl_guidance/models/policy.onnx"
+    model_path: "/home/hmue_gyi/ros2_ws/src/uav_rl_guidance/models/policy.onnx"
     # true: 不加载策略，全程使用内置 PNG（A/B 基线模式，与 uav_vision_png 等价）
     fallback_png: false
 
@@ -28,4 +28,4 @@ uav_rl_guidance:
 
     # ---- 统计参数 ----
     hit_radius: 0.8
-    csv_path: "/home/verser/ros2_ws/rl_intercept_stats.csv"
+    csv_path: "/home/hmue_gyi/ros2_ws/rl_intercept_stats.csv"

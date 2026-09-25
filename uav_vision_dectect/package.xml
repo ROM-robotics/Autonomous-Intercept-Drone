@@ -12,7 +12,7 @@
   <depend>rclcpp</depend>
   <depend>std_msgs</depend>
   <depend>px4_msgs</depend>
-  <depend>uav_common_msgs</depend>
+  <depend>uav_common_msg</depend>
 
   <depend>cv_bridge</depend>
   <depend>sensor_msgs</depend>

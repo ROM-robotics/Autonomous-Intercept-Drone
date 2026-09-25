@@ -409,7 +409,7 @@ void PngInterceptor::publish_vehicle_command(uint16_t command, float p1, float p
 void PngInterceptor::save_data_to_csv() {
     if (!csv_file_.is_open()) {
         // 使用绝对路径，防止找不到文件
-        csv_file_.open("/home/verser/ros2_ws/src/uav_png_intercept/intercept_data.csv", std::ios::out);
+        csv_file_.open("/home/hmue_gyi/ros2_ws/src/uav_png_intercept/intercept_data.csv", std::ios::out);
         csv_file_ << "time,s_x,s_y,s_z,t_x,t_y,t_z,dist\n";
     }
 

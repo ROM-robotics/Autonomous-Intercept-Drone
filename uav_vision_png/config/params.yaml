@@ -48,4 +48,4 @@ uav_vision_png:
     # 命中判定半径 (m)
     hit_radius: 0.8
     # CSV 输出路径
-    csv_path: "/home/verser/ros2_ws/vpng_intercept_stats.csv"
+    csv_path: "/home/hmue_gyi/ros2_ws/vpng_intercept_stats.csv"

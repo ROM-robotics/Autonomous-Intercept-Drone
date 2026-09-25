@@ -98,7 +98,7 @@ uav_chase::uav_chase():Node("uav_ibvs_control")
 
 			static std::ofstream log_file;
 			if (!log_file.is_open()) {
-				log_file.open("/home/verser/ros2_ws/px4_2_xyz_log.txt", std::ios::out | std::ios::app);
+				log_file.open("/home/hmue_gyi/ros2_ws/px4_2_xyz_log.txt", std::ios::out | std::ios::app);
 				if (!log_file.is_open()) {
 					RCLCPP_ERROR(this->get_logger(), "无法打开日志文件！");
 					return;

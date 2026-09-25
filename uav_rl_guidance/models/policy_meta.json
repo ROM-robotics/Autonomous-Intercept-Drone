@@ -15,6 +15,6 @@
     "image_width": 1920,
     "image_height": 1080
   },
-  "source_ckpt": "/home/verser/Python/guidance_rl/checkpoints/rl_policy.pt",
+  "source_ckpt": "/home/hmue_gyi/Python/guidance_rl/checkpoints/rl_policy.pt",
   "ckpt_hit_rate": 0.97
 }

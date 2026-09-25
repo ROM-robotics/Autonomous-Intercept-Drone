@@ -45,8 +45,8 @@ UavTopicSubscrib::~UavTopicSubscrib()
 UavTopicSubscrib::UavTopicSubscrib() : Node("uav_vision_dectect")
 {
     /***********************************局部跟踪器初始化***********************************/
-    std::string init_model = "/home/verser/ros2_ws/src/uav_vision_dectect/model/light_track/lighttrack_init";
-    std::string update_model = "/home/verser/ros2_ws/src/uav_vision_dectect/model/light_track/lighttrack_update";
+    std::string init_model = "/home/hmue_gyi/ros2_ws/src/uav_vision_dectect/model/light_track/lighttrack_init";
+    std::string update_model = "/home/hmue_gyi/ros2_ws/src/uav_vision_dectect/model/light_track/lighttrack_update";
 
     siam_tracker = new LightTrack(init_model.c_str(), update_model.c_str());
 

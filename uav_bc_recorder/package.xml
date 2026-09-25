@@ -4,7 +4,7 @@
   <name>uav_bc_recorder</name>
   <version>0.1.0</version>
   <description>Record Gazebo camera images + detection/trajectory data for BC training</description>
-  <maintainer email="verser@example.com">verser</maintainer>
+  <maintainer email="hmue_gyi@example.com">hmue_gyi</maintainer>
   <license>MIT</license>
 
   <depend>rclpy</depend>
