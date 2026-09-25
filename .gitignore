@@ -1,0 +1,48 @@
+# ROS / Colcon / CMake build artifacts
+**/build/
+**/install/
+**/log/
+**/devel/
+**/.catkin_tools/
+**/cmake-build-*/
+**/CMakeFiles/
+**/CMakeCache.txt
+**/*.cmake
+**/Makefile
+**/compile_commands.json
+**/colcon-*.log
+**/src/.colcon_install_layout
+
+# Python artifacts
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.venv/
+venv/
+env/
+.conda/
+
+# Editor / IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Misc runtime/log files
+*.log
+*.tmp
+*.bak
+
+# Local environment / tool caches
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
