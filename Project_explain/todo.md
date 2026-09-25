@@ -39,17 +39,17 @@ sudo apt install -y \
 ဒီ project ရဲ့ workspace root က-
 
 ```text
-/home/hmue_gyi/dev_ws
+/home/username/dev_ws
 ```
 
 ```bash
-cd /home/hmue_gyi/dev_ws
+cd /home/username/dev_ws
 ```
 
 `colcon build` ကို `src` directory ထဲက မ run ပါနှင့်။ Source packages များသည်-
 
 ```text
-/home/hmue_gyi/dev_ws/src/Autonomous_Intercept_Drone/
+/home/username/dev_ws/src/Autonomous_Intercept_Drone/
 ```
 
 ## ၃။ ONNX Runtime C++ ကို install လုပ်ပါ
@@ -81,7 +81,7 @@ find /usr/local/lib -name 'libonnxruntime.so*'
 ## ၄။ rosdep ဖြင့် dependency များ စစ်ပါ
 
 ```bash
-cd /home/hmue_gyi/dev_ws
+cd /home/username/dev_ws
 source /opt/ros/humble/setup.bash
 rosdep update
 rosdep install --from-paths src --ignore-src -r -y
@@ -99,10 +99,10 @@ git clone https://github.com/PX4/PX4-Autopilot.git --recursive
 Custom world နှင့် startup script ကို PX4 ထဲသို့ ကူးပါ-
 
 ```bash
-cp /home/hmue_gyi/dev_ws/src/Autonomous_Intercept_Drone/assets/gazebo_world/grass_world.sdf \
+cp /home/username/dev_ws/src/Autonomous_Intercept_Drone/assets/gazebo_world/grass_world.sdf \
   ~/PX4-Autopilot/Tools/simulation/gz/worlds/
 
-cp /home/hmue_gyi/dev_ws/src/Autonomous_Intercept_Drone/run_swarm.sh \
+cp /home/username/dev_ws/src/Autonomous_Intercept_Drone/run_swarm.sh \
   ~/PX4-Autopilot/
 chmod +x ~/PX4-Autopilot/run_swarm.sh
 ```
@@ -110,7 +110,7 @@ chmod +x ~/PX4-Autopilot/run_swarm.sh
 ## ၆။ Message packages များကို အရင် build လုပ်ပါ
 
 ```bash
-cd /home/hmue_gyi/dev_ws
+cd /home/username/dev_ws
 source /opt/ros/humble/setup.bash
 colcon build --symlink-install --packages-select px4_msgs uav_common_msg
 ```
@@ -120,17 +120,17 @@ colcon build --symlink-install --packages-select px4_msgs uav_common_msg
 ## ၇။ Workspace တစ်ခုလုံး build လုပ်ပါ
 
 ```bash
-cd /home/hmue_gyi/dev_ws
+cd /home/username/dev_ws
 source /opt/ros/humble/setup.bash
 colcon build --symlink-install
-source /home/hmue_gyi/dev_ws/install/setup.bash
+source /home/username/dev_ws/install/setup.bash
 ```
 
 Terminal အသစ်ဖွင့်တိုင်း ROS နှင့် workspace ကို source လုပ်ပါ-
 
 ```bash
 source /opt/ros/humble/setup.bash
-source /home/hmue_gyi/dev_ws/install/setup.bash
+source /home/username/dev_ws/install/setup.bash
 ```
 
 ## ၈။ Build error ဖြေရှင်းနည်း
@@ -149,7 +149,7 @@ test -f /usr/local/include/onnxruntime_cxx_api.h && echo OK
 Message package မပြီးသေးခြင်း သို့မဟုတ် build order မမှန်ခြင်း ဖြစ်ပါသည်။
 
 ```bash
-cd /home/hmue_gyi/dev_ws
+cd /home/username/dev_ws
 colcon build --symlink-install --packages-select px4_msgs uav_common_msg
 colcon build --symlink-install
 ```
@@ -161,7 +161,7 @@ colcon build --symlink-install
 အရင် build artifact နဲ့ `--symlink-install` တိုက်နေခြင်း ဖြစ်ပါသည်။ `<package_name>` နေရာတွင် error ပြသော package အမည်ထည့်ပါ-
 
 ```bash
-cd /home/hmue_gyi/dev_ws
+cd /home/username/dev_ws
 mv build/<package_name> build/<package_name>.backup
 colcon build --symlink-install --packages-select <package_name>
 ```
@@ -192,7 +192,7 @@ Gazebo နှင့် drone များ load ဖြစ်ရန် ၁၅ စ�
 
 ```bash
 source /opt/ros/humble/setup.bash
-source /home/hmue_gyi/dev_ws/install/setup.bash
+source /home/username/dev_ws/install/setup.bash
 ros2 run uav_target_sim uav_target_sim
 ```
 
@@ -200,7 +200,7 @@ ros2 run uav_target_sim uav_target_sim
 
 ```bash
 source /opt/ros/humble/setup.bash
-source /home/hmue_gyi/dev_ws/install/setup.bash
+source /home/username/dev_ws/install/setup.bash
 ros2 run uav_vision_dectect uav_vision_dectect
 ```
 
@@ -210,7 +210,7 @@ RL guidance သုံးမည်ဆိုပါက-
 
 ```bash
 source /opt/ros/humble/setup.bash
-source /home/hmue_gyi/dev_ws/install/setup.bash
+source /home/username/dev_ws/install/setup.bash
 ros2 launch uav_rl_guidance rl_guidance.launch.py
 ```
 
@@ -218,7 +218,7 @@ PNG guidance သုံးမည်ဆိုပါက-
 
 ```bash
 source /opt/ros/humble/setup.bash
-source /home/hmue_gyi/dev_ws/install/setup.bash
+source /home/username/dev_ws/install/setup.bash
 ros2 run uav_vision_png uav_vision_png
 ```
 
