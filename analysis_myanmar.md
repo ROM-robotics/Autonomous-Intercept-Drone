@@ -1,273 +1,225 @@
-# 🚁 Autonomous Intercept Drone — Repository ခွဲခြမ်းစိတ်ဖြာမှု
+# 🚁 Autonomous Intercept Drone — စနစ်ခွဲခြမ်းစိတ်ဖြာမှု မှတ်တမ်း
 
-> Repo: [Autonomous-Intercept-Drone](file:///home/hmue_gyi/Desktop/Git/Autonomous-Intercept-Drone)  
-> ဘာသာစကား: C++ (ROS 2)၊ Python (Training / Export)  
-> ခွဲခြမ်းသည့်နေ့: 2026-09-24
-
----
-
-## ၁။ Project အကျဉ်းချုပ်
-
-**Image-based Visual Servo Autonomous Intercept Drone System**
-
-PX4 + Gazebo + ROS 2 Humble ပတ်ဝန်းကျင်တွင် ड्रोन နှစ်စီး (ဖမ်းဆီးသူ + ပစ်မှတ်) ကို Simulate လုပ်ကာ၊ **မြင်ကွင်းခွဲခြမ်း → လမ်းကြောင်းဆုံးဖြတ် (Guidance) → ပျံသန်းထိန်းချုပ်** ဆိုသည့် ပြည့်စုံသော ကိုယ်တိုင်ကိုယ်ကျ ဝင်တိုက်ရာ Loop ကို အကောင်အထည်ဖော်ထားသည်။
-
-| အချက် | အသေးစိတ် |
-|---|---|
-| Simulator | **Gazebo Harmonic** (gz-sim 8.12.0) + **PX4 SITL** v1.16 |
-| Middleware | **ROS 2 Humble**၊ **MicroXRCE-DDS-Agent** v2.4.x |
-| Drone Platform | PX4 X500 (ဖမ်းဆီးသူ: Depth Camera တပ်ဆင်ထား၊ ပစ်မှတ်: သာမာန်) |
-| Simulation World | `grass_world` (.sdf) |
-| RL Algorithm | **BC + PPO** (Behavioral Cloning ဦးစွာ → PPO Fine-tuning) |
-| Training External Repo | **[AeroIntercept](https://github.com/Eaglewzw/AeroIntercept)** |
+> **Repository**: [Autonomous_Intercept_Drone](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone)  
+> **အဓိက နည်းပညာများ**: ROS 2 Humble, PX4 Autopilot (SITL v1.16), Gazebo Sim (Harmonic), C++, ONNX Runtime  
+> **စာတမ်းရည်ရွယ်ချက်**: ဤ Project ၏ အစိတ်အပိုင်းများ၊ ROS 2 Packages များ၊ Perception မှ Guidance ထိန်းချုပ်မှုအထိ အလုပ်လုပ်ပုံနှင့် RL Model အသုံးချပုံတို့ကို ရှင်းလင်းလွယ်ကူစွာ နားလည်နိုင်စေရန် ရေးသားထားပါသည်။
 
 ---
 
-## ၂။ Package ဖွဲ့စည်းပုံ
+## ၁။ စနစ် ခြုံငုံသုံးသပ်ချက် (System Overview)
 
-```
-Autonomous-Intercept-Drone/
-├── run_swarm.sh              ← Gazebo + PX4 SITL Dual-Drone စတင်ရေး Script
-├── px4_msgs/                 ← PX4 ROS 2 Message များ သတ်မှတ်ချက်
-├── px4_ros_com/              ← PX4 ↔ ROS 2 ဆက်သွယ်ရေး Utility
-├── ros2_helloworld/          ← အခြေခံ နမူနာ
-├── uav_bc_recorder/          ← BC Data Recorder (အပြုအမူ ကူးခဲ့ Data စုဆောင်း)
-├── uav_common_msg/           ← မျှဝေသော Message အမျိုးအစားများ
-├── uav_ibvs_control/         ← [ဟောင်းနွမ်းပြီ] Image-based Visual Servo
-├── uav_keyboard_control/     ← လက်ဖြင့် Keyboard ထိန်းချုပ်မှု
-├── uav_png_intercept/        ← PNG (Proportional Navigation Guidance) ရိုးစင်းသော နည်းလမ်း
-├── uav_rl_guidance/          ← ★ RL GRU Policy အခြေခံ Guidance Node (အဓိက)
-├── uav_target_sim/           ← ပစ်မှတ် Drone လှုပ်ရှားမှု Simulator
-├── uav_vehicle_controller/   ← PX4 Offboard Speed/Attitude ထိန်းချုပ်မှု
-├── uav_vision_dectect/       ← YOLO11 + LightTrack မြင်ကွင်းရှာဖွေမှု
-└── uav_vision_png/           ← မြင်ကွင်း + PNG ပေါင်းစပ် Guidance Node (သာမာန် နည်းလမ်း)
-```
+ဤ Project သည် **Image-based Visual Intercept Drone System** ဖြစ်ပြီး၊ ဒရုန်း (၂) စီးကို Gazebo Simulation တွင် ပျံသန်းစေကာ ဖမ်းဆီးသူဒရုန်းမှ ပစ်မှတ်ဒရုန်းကို အလိုအလျောက် ရှာဖွေပြီး ကြားဖြတ်တိုက်ခိုက် (Intercept) သည့် စနစ်ဖြစ်ပါသည်:
 
----
-
-## ၃။ စနစ် ဗိသုကာပုံ (Architecture Diagram)
-
-```mermaid
-graph TB
-    subgraph SIM["🖥️ Simulation Layer (Gazebo Harmonic + PX4 SITL)"]
-        GZ["Gazebo gz-sim\ngrass_world"]
-        PX4_1["PX4 Instance 1\nဖမ်းဆီးသူ (Interceptor)\nx500_depth"]
-        PX4_2["PX4 Instance 2\nပစ်မှတ် (Target)\nx500"]
-        GZ --> PX4_1
-        GZ --> PX4_2
-    end
-
-    subgraph DDS["📡 DDS Bridge"]
-        UXRCE["MicroXRCE-DDS-Agent\nUDP:8888"]
-        BRIDGE["ros_gz_bridge\n/camera/image"]
-    end
-
-    subgraph PERCEPTION["👁️ မြင်ကွင်းခွဲခြမ်းမှု Layer"]
-        YOLO["uav_vision_dectect\nYOLO11 + LightTrack\n/camera/image → /camera_detect_result"]
-    end
-
-    subgraph GUIDANCE["🎯 Guidance Layer"]
-        PNG["uav_png_intercept\nProportional Navigation\nGuidance (PNG)"]
-        VPNG["uav_vision_png\nမြင်ကွင်း + PNG\nသာမာန် နည်းလမ်း"]
-        RL["uav_rl_guidance ★\nGRU Policy (BC+PPO)\nONNX Runtime C++\nRL နည်းလမ်း"]
-        RL_FALLBACK["အတွင်းပါ PNG\nWatchdog သုံး အကာအကွယ်"]
-        RL --> RL_FALLBACK
-    end
-
-    subgraph CONTROL["🕹️ ထိန်းချုပ်မှု Layer"]
-        CTRL["uav_vehicle_controller\nPX4 Offboard\nSpeed/Attitude ထိန်းချုပ်"]
-    end
-
-    subgraph TARGET_SIM["🎭 ပစ်မှတ် Simulator"]
-        TSIM["uav_target_sim\ncircle / sinusoidal / random_walk"]
-    end
-
-    PX4_1 -->|"fmu/out/*"| UXRCE
-    PX4_2 -->|"fmu/out/*"| UXRCE
-    UXRCE -->|"/px4_1/* /px4_2/*"| DDS
-    GZ -->|"IMX214 Camera"| BRIDGE
-    BRIDGE -->|"/camera/image"| PERCEPTION
-    PERCEPTION -->|"/camera_detect_result"| VPNG
-    PERCEPTION -->|"/camera_detect_result"| RL
-    VPNG -->|"TrajectorySetpoint"| CTRL
-    RL -->|"TrajectorySetpoint"| CTRL
-    CTRL -->|"/px4_1/fmu/in/*"| PX4_1
-    TSIM -->|"/px4_2/fmu/in/*"| PX4_2
-```
-
----
-
-## ၄။ RL (Reinforcement Learning) — ဘယ် Simulation မှာ Train ထားသလဲ?
-
-> [!IMPORTANT]
-> RL Policy ကို **ဒီ Gazebo/PX4 Repo နဲ့ သီးခြားဖြစ်သော ပြင်ပ Repo** မှာ Train ထားပါသည်။
-
-### Training ပတ်ဝန်းကျင် အချက်အလက်
-
-| အချက် | အသေးစိတ် |
-|---|---|
-| **Training Repo** | **[AeroIntercept](https://github.com/Eaglewzw/AeroIntercept)** (ပြင်ပ GitHub) |
-| **Training ပတ်ဝန်းကျင် အမျိုးအစား** | **Custom Python Simulation** (Gazebo/PX4 SITL မဟုတ်ပါ) |
-| **Training Algorithm** | **BC (Behavioral Cloning)** ဦးစွာ → **PPO** Fine-tuning |
-| **Policy ဖွဲ့စည်းပုံ** | **GRU (Gated Recurrent Unit)** Hidden Units 128 ခု |
-| **Observation ဆင့်** | 15 ဆင့် (obs_dim=15) |
-| **Action ဆင့်** | 4 ဆင့် (act_dim=4) |
-| **Checkpoint ပြင်ပ Path** | `/home/verser/Python/guidance_rl/checkpoints/rl_policy.pt` |
-| **Train ထားသည့် Hit Rate** | **97%** (policy_meta.json မှတ်တမ်း) |
-| **Deploy ပုံစံ** | TorchScript (`.pt`) → ONNX (`.onnx`) ပြောင်းလဲပြီး သုံး |
-
-### Training ပတ်ဝန်းကျင် ဖွဲ့စည်းပုံ (ကုဒ် ခွဲခြမ်းမှုအပေါ် အခြေခံ)
-
-```
-guidance_rl/          ← AeroIntercept Repo ထဲတွင် ရှိသော Training ကုဒ်
-├── features.py       ← 15-ဆင့် Observation Feature သတ်မှတ်ချက် (C++ နှင့် တစ်ကိုက်)
-├── png_teacher.py    ← BC Training အတွက် PNG Teacher အကောင်အထည်ဖော်မှု
-└── checkpoints/
-    └── rl_policy.pt  ← နောက်ဆုံး Train ပြီးသော Checkpoint
-```
-
-### Training Observation Features (15 ဆင့်)
-
-| Index | Feature | ဘာကို ကိုယ်စားပြုသလဲ |
-|---|---|---|
-| 0 | `los_v` (LOS အပေါ်ကြည့်ထောင့်) | ပစ်မှတ်ရဲ့ Elevation Angle (π/4 ဖြင့် Normalize) |
-| 1 | `sin(los_z)` | LOS Azimuth Angle ၏ sin တန်ဖိုး |
-| 2 | `cos(los_z)` | LOS Azimuth Angle ၏ cos တန်ဖိုး |
-| 3 | `dlos_v` | LOS Elevation Rate — ပစ်မှတ် ဘာနှုန်းနဲ့ အပေါ်/အောက် ရွေ့နေလဲ |
-| 4 | `dlos_z` | LOS Azimuth Rate — ပစ်မှတ် ဘာနှုန်းနဲ့ ဘေးရွေ့နေလဲ |
-| 5 | `log(bbox_w)` | ပစ်မှတ် Bounding Box ၏ အကျယ် (log, Normalize ပြု) |
-| 6 | `log(bbox_h)` | ပစ်မှတ် Bounding Box ၏ အမြင့် (log, Normalize ပြု) |
-| 7 | `dlog_w` | Box ကြီးမားနှုန်း ပြောင်းလဲချက် (အနီးအဝေး ခန့်မှန်းနိုင်) |
-| 8 | `valid_flag` | ပစ်မှတ် မြင်နေဆဲ ဟုတ်/မဟုတ် (0 သို့မဟုတ် 1) |
-| 9 | `age` | ပစ်မှတ် နောက်ဆုံး မြင်ခဲ့ကတည်းက ကြာချိန် |
-| 10 | `vx` | ဖမ်းဆီးသူ Drone ကိုယ်တိုင်ရဲ့ North အမြန်နှုန်း |
-| 11 | `vy` | ဖမ်းဆီးသူ Drone ကိုယ်တိုင်ရဲ့ East အမြန်နှုန်း |
-| 12 | `vz` | ဖမ်းဆီးသူ Drone ကိုယ်တိုင်ရဲ့ Down အမြန်နှုန်း |
-| 13 | `v_norm` | ကိုယ်တိုင်ရဲ့ အမြန်နှုန်း scalar |
-| 14 | `altitude` | လက်ရှိ ပျံနေသည့် အမြင့် |
-
-### Action Output (4 ဆင့်)
-
-| Index | Action | ပမာဏ |
-|---|---|---|
-| a[0] | Elevation Angle ချိန်ညှိမှု | ±1.2 rad |
-| a[1] | Azimuth Angle ချိန်ညှိမှု | ±1.2 rad |
-| a[2] | အမြန်နှုန်း (Speed) | 2.0 ~ 5.0 m/s |
-| a[3] | Yaw ပတ်လည်နှုန်း | ±1.0 rad/s |
-
----
-
-## ၅။ RL Training Pipeline
+* **Drone 1 (Interceptor / ဖမ်းဆီးသူ)**: ရှေ့ကြည့် RGB Camera (`IMX214`) တပ်ဆင်ထားပြီး Visual AI မော်ဒယ်များနှင့် Guidance Algorithm သုံးကာ ပစ်မှတ်ကို လိုက်လံတိုက်ခိုက်သည်။
+* **Drone 2 (Target / ပစ်မှတ်)**: သတ်မှတ်ထားသော ပျံသန်းမှုပုံစံများ (Circle, Sinusoidal, Random Walk) ဖြင့် ပျံသန်းနေသော ပစ်မှတ်ဖြစ်သည်။
 
 ```mermaid
 flowchart LR
-    A["🌐 AeroIntercept\nCustom Python ပတ်ဝန်းကျင်\nguidance_rl/"] -->|"BC ဦးစွာ\nPNG Teacher ကို မှတ်ပြု"| B["BC အစပျိုး Policy"]
-    B -->|"PPO Fine-tuning\nဝင်တိုက်အောင်မြင်ရင် Reward"| C["rl_policy.pt\n97% Hit Rate"]
-    C -->|"export_onnx.py"| D["policy.onnx\n258KB"]
-    D -->|"ONNX Runtime C++\nuav_rl_guidance"| E["🚁 Gazebo/PX4 SITL\nReal-time Inference"]
-    E -.->|"Watchdog ပြသနာဖြစ်ရင်"| F["အတွင်း PNG Fallback"]
+    CAM["📷 Camera Frame\n(/camera/image)"] --> DET["🔍 Perception\n(YOLOv5 + LightTrack)"]
+    DET -->|"Bounding Box (x,y,w,h)"| GUID["🧭 Guidance\n(PNG or GRU RL)"]
+    GUID -->|"Velocity Setpoint [vx, vy, vz]"| FC["🚁 Flight Controller\n(PX4 Offboard Mode)"]
+    FC --> HIT["💥 Physical Interception\n(Hit Radius < 0.8m)"]
 ```
 
-> [!NOTE]
-> **2 အဆင့် Training နည်းဗျူဟာ**: PNG Algorithm ကို Teacher အဖြစ် သုံးပြီး BC ဖြင့် ကူးစား လေ့ကျင့်ကာ၊ ထို့နောက် PPO ဖြင့် ထပ်မံ ကောင်းမွန်အောင် လေ့ကျင့်သော **Imitation → RL** ပုံစံ ဖြစ်သည်။
+| အစိတ်အပိုင်း | အသုံးပြုထားသော နည်းပညာ / ဗားရှင်း |
+|---|---|
+| **Simulator** | Gazebo Harmonic (`gz-sim 8.12.0`) + World: `grass_world` |
+| **Autopilot** | PX4 SITL v1.16 (Offboard Mode ထိန်းချုပ်မှု) |
+| **Middleware** | ROS 2 Humble + MicroXRCE-DDS-Agent (UDP:8888) |
+| **Perception Model** | YOLOv5 Detector (`GDUT_UAV.onnx`) + LightTrack (`lighttrack_init/update.onnx`) |
+| **Guidance System** | Classical PNG (`uav_vision_png`) သို့မဟုတ် RL GRU Policy (`uav_rl_guidance`) |
+| **RL Performance** | **97% Hit Rate** (ပစ်မှတ်ကို အောင်မြင်စွာ ကြားဖြတ်ဖမ်းဆီးနိုင်မှုနှုန်း) |
 
 ---
 
-## ၆။ Simulation စတင်မှု အဆင့်ဆင့်
+## ၂။ စနစ် ဗိသုကာပုံ (System Architecture)
+
+စနစ်တစ်ခုလုံး၏ ROS 2 Nodes များ၊ Simulation နှင့် ဒေတာ စီးဆင်းမှု (Data Flow) ကို အောက်ပါအတိုင်း ဖွဲ့စည်းထားပါသည်:
 
 ```mermaid
-sequenceDiagram
-    participant User as အသုံးပြုသူ
-    participant Script as run_swarm.sh
-    participant Agent as MicroXRCE-DDS-Agent
-    participant D1 as Drone 1 (ဖမ်းဆီးသူ)
-    participant D2 as Drone 2 (ပစ်မှတ်)
-    participant Bridge as Camera Bridge
-    participant ROS as ROS 2 Nodes
+flowchart TD
+    subgraph SIM["🖥️ Simulation Layer (Gazebo & PX4)"]
+        GZ["Gazebo Sim\ngrass_world"]
+        D1["Drone 1 (gz_x500_depth)\nဖမ်းဆီးသူ ဒရုန်း"]
+        D2["Drone 2 (gz_x500)\nပစ်မှတ် ဒရုန်း"]
+        GZ --> D1 & D2
+    end
 
-    User->>Script: ./run_swarm.sh
-    Script->>Agent: UDP:8888 စတင်
-    Script->>D1: PX4 SITL Instance 1 (gz_x500_depth, pos 0,0)
-    Note over D1: Gazebo grass_world load (~15 စက္ကန့်)
-    Script->>Bridge: ros_gz_bridge /camera/image
-    Script->>D2: PX4 SITL Instance 2 (gz_x500, pos 20,0)
+    subgraph DDS["📡 Middleware Bridge"]
+        UXRCE["MicroXRCE-DDS-Agent\n(UDP:8888)"]
+        BRIDGE["ros_gz_bridge\n(/camera/image)"]
+    end
 
-    User->>ROS: ros2 run uav_target_sim uav_target_sim
-    User->>ROS: ros2 launch uav_rl_guidance rl_guidance.launch.py
-    User->>ROS: ros2 run uav_vision_dectect uav_vision_dectect
+    subgraph PERCEPTION["👁️ Perception Layer"]
+        DET_NODE["uav_vision_dectect\nYOLOv5 + LightTrack"]
+    end
 
-    ROS-->>D1: Offboard Velocity ထိန်းချုပ်
-    D1-->>ROS: Odometry, GPS, Status
-    D2-->>ROS: GPS Position (ကိန်းဂဏာန်းတွက်ချက်မှုအတွက်)
+    subgraph GUIDANCE["🎯 Guidance Layer (ရွေးချယ်နိုင်သော စနစ် ၂ မျိုး)"]
+        PNG_NODE["uav_vision_png\n(Classical PNG နည်းလမ်း)"]
+        RL_NODE["uav_rl_guidance\n(GRU RL Policy နည်းလမ်း)"]
+    end
+
+    subgraph TARGET_SIM["🎭 Target Controller"]
+        TSIM["uav_target_sim\n(Circle / Sinusoid / Random)"]
+    end
+
+    D1 -->|"PX4 Telemetry (/px4_1/fmu/out/*)"| UXRCE
+    D2 -->|"PX4 Telemetry (/px4_2/fmu/out/*)"| UXRCE
+    UXRCE --> GUIDANCE
+
+    D1 -->|"Camera Stream"| BRIDGE
+    BRIDGE -->|"/camera/image"| DET_NODE
+
+    DET_NODE -->|"/camera_detect_result"| PNG_NODE
+    DET_NODE -->|"/camera_detect_result"| RL_NODE
+
+    PNG_NODE -.->|"/px4_1/fmu/in/trajectory_setpoint"| D1
+    RL_NODE -->|"/px4_1/fmu/in/trajectory_setpoint"| D1
+
+    TSIM -->|"/px4_2/fmu/in/trajectory_setpoint"| D2
 ```
 
 ---
 
-## ၇။ ပစ်မှတ် လှုပ်ရှားမှု Mode များ (uav_target_sim)
+## ၃။ Package များ ဖွဲ့စည်းပုံနှင့် အခန်းကဏ္ဍ
 
-| Mode | Parameter | လှုပ်ရှားမှု ညီမျှခြင်း | သွင်ပြင်လက္ခဏာ |
-|---|---|---|---|
-| ဝိုင်းပတ် (မူရင်း) | `circle` | R=5m၊ ω=0.05 rad/s | တည်ငြိမ်သော ဝိုင်းပတ်မှု၊ နယ်နိမိတ် မလိုအပ် |
-| Sin Wave ကော | `sinusoidal` | a_y = 0.5·sin(0.5t) m/s² | ရှေ့တိုး 1m/s + ဘေးဘက် Sin ကော အရှိန် |
-| ကျပန်း လမ်းလျှောက် | `random_walk` | v(t+Δt) = v(t) + N(0, 0.2) | မမှန်ကန်သော ထွက်ပြေး၊ အများဆုံး 3 m/s |
+ဤ Workspace တွင် ပါဝင်သော ROS 2 Packages များကို ၎င်းတို့၏ လုပ်ဆောင်ချက်အလိုက် ရှင်းလင်းစွာ ခွဲခြားထားပါသည်:
 
-နယ်နိမိတ် ကန့်သတ်မှု: `max_range` (မူရင်း 10m)၊ 80% ကျော်ရင် ပြန်ဆွဲသော အားထည့်
+### က။ အဓိက အသုံးပြုနေသော Packages (Active Packages)
+
+| Package အမည် | တာဝန်ယူထားသည့် အခန်းကဏ္ဍ | အဓိကဖိုင်များ |
+|---|---|---|
+| [`uav_vision_dectect`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect) | ကင်မရာပုံရိပ်မှ ပစ်မှတ်ဒရုန်းကို ရှာဖွေပြီး Bounding Box ထုတ်ပေးခြင်း | [`uav_topic_subscrib.cpp`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect/src/uav_topic_subscrib.cpp) |
+| [`uav_rl_guidance`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance) | **အဓိက Guidance စနစ်** — GRU Policy (ONNX Runtime) ဖြင့် အမြန်နှုန်း အမိန့်များ ထုတ်ပေးခြင်း | [`rl_guidance_node.cpp`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance/src/rl_guidance_node.cpp) |
+| [`uav_vision_png`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_png) | **Baseline Guidance စနစ်** — Classical သင်္ချာနည်း (PNG) ဖြင့် ထိန်းကျောင်းခြင်း | [`vision_png_control.cpp`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_png/src/vision_png_control.cpp) |
+| [`uav_target_sim`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_target_sim) | ပစ်မှတ်ဒရုန်း (Drone 2) အား လှုပ်ရှားပျံသန်းစေရန် Trajectory ဖန်တီးပေးခြင်း | [`uav_target_sim.cpp`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_target_sim/src/uav_target_sim.cpp) |
+| [`uav_common_msg`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_common_msg) | Node များအချင်းချင်း ဒေတာဖလှယ်ရာတွင် သုံးသော Custom Messages (`RectMsg`, `Data`) | `RectMsg.msg`, `Data.msg` |
+| [`px4_msgs`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/px4_msgs) | PX4 Autopilot နှင့် တိုက်ရိုက် ဆက်သွယ်သော ROS 2 Messages များ | `TrajectorySetpoint.msg`, စသည် |
+
+### ခ။ အထောက်အကူပြု နှင့် စမ်းသပ်မှု Packages (Utilities & Legacy)
+
+* [`px4_ros_com`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/px4_ros_com): PX4 နှင့် ROS 2 ကြား အချိန်နှင့်တပြေးညီ ချိတ်ဆက်မှု အထောက်အကူပြု Library။
+* [`uav_bc_recorder`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_bc_recorder): Behavioral Cloning အတွက် ပျံသန်းမှု ဒေတာများ စုဆောင်းမှတ်တမ်းတင်သည့် Node။
+* [`uav_keyboard_control`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_keyboard_control): စမ်းသပ်ရာတွင် ဒရုန်းကို လက်ဖြင့် Keyboard ဖြင့် ထိန်းချုပ်မောင်းနှင်နိုင်သည့် Node။
+* [`uav_png_intercept`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_png_intercept) / [`uav_ibvs_control`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_ibvs_control): ယခင် အစောပိုင်း သုတေသနပြုလုပ်ခဲ့သော ရှေးဟောင်း Guidance Node များ (လက်ရှိတွင် `uav_vision_png` နှင့် `uav_rl_guidance` ဖြင့် အစားထိုးထားပြီးဖြစ်သည်)။
 
 ---
 
-## ၈။ State Machine (RL Node)
+## ၄။ Guidance နည်းလမ်း (၂) ခု နှိုင်းယှဉ်ချက် (PNG vs RL)
+
+Interceptor Drone တွင် အသုံးပြုနိုင်သော လမ်းညွှန်နည်းလမ်း (၂) ခု ကွာခြားချက်မှာ အောက်ပါအတိုင်း ဖြစ်ပါသည်:
+
+| အချက် | Classical PNG (`uav_vision_png`) | RL Policy (`uav_rl_guidance`) |
+|---|---|---|
+| **သဘောတရား** | သင်္ချာနည်းအရ LOS Angle ပြောင်းလဲနှုန်းကို အခြေခံတွက်ချက် | Neural Network (GRU) မှ တိုက်ရိုက် Action ဆုံးဖြတ် |
+| **Model လိုအပ်မှု** | Model လုံးဝမလို (Pure Math) | ONNX Model လိုအပ် (`policy.onnx` ~258 KB) |
+| **ပစ်မှတ်ကွယ်သွားချိန် (Occlusion)** | မျက်ကွယ်ပျောက်ပါက အရှိန်ထိန်း၍ မျောပျံရုံသာ တတ်နိုင် | GRU Memory မှတဆင့် လမ်းကြောင်းကို ကြိုတင်ခန့်မှန်းနိုင် |
+| **ရှောင်တိမ်းသော ပစ်မှတ်များ** | ပစ်မှတ် ရုတ်တရက် အပြောင်းအလဲလုပ်ပါက လွဲချော်နိုင်ခြေရှိ | မတူညီသော ပျံသန်းမှုပုံစံများဖြင့် Train ထား၍ Hit Rate ပိုမိုမြင့်မား |
+| **လုံခြုံရေး အကာအကွယ်** | မလိုပါ | **Watchdog ပါဝင်** (AI မှားယွင်းပါက PNG သို့ အလိုအလျောက် Fallback) |
+
+---
+
+## ၅။ RL Guidance Model လေ့ကျင့်ထားပုံ (RL Training Summary)
+
+> အသေးစိတ် လေ့ကျင့်ပုံအပြည့်အစုံကို [04_how_to_train_RL.md](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/04_how_to_train_RL.md) တွင် သီးသန့်ဖော်ပြထားပါသည်။
+
+```mermaid
+flowchart LR
+    A["AeroIntercept Simulation\n(Custom Fast 3D Sim)"] --> B["Stage 1: BC\n(PNG Teacher မှ အတုယူ)"]
+    B --> C["Stage 2: PPO\n(Reward ဖြင့် Fine-tune)"]
+    C --> D["policy.pt\n(Hit Rate 97%)"]
+    D --> E["export_onnx.py\n(policy.onnx)"]
+    E --> F["ROS 2 C++ Node\n(ONNX Runtime 20Hz)"]
+```
+
+* **လေ့ကျင့်သည့် ပတ်ဝန်းကျင်**: Gazebo ပေါ်တွင် တိုက်ရိုက် မလေ့ကျင့်ဘဲ **AeroIntercept** Fast Python Simulation ပေါ်တွင် Parallel Steps သန်းပေါင်းများစွာ အလျင်အမြန် လေ့ကျင့်ခဲ့ခြင်းဖြစ်သည်။
+* **2-Stage Hybrid Learning**:
+  1. **Behavioral Cloning (BC)**: Cold-start မဖြစ်စေရန် PNG Teacher ၏ ပျံသန်းမှုများကို ကြိုတင်ကူးယူ လေ့ကျင့်သည်။
+  2. **PPO (Proximal Policy Optimization)**: Hit Reward, Distance Reward, Smoothness Penalty များဖြင့် စွမ်းရည်အမြင့်မားဆုံးရောက်အောင် Fine-tune လုပ်သည်။
+* **Input / Output**:
+  * **Observation (15-dim)**: LOS Elevation/Azimuth Angles, LOS Angular Rates, Bounding Box Sizes, Valid Flag, Age, Drone Velocities, Altitude.
+  * **Action (4-dim)**: Elevation Adjustment, Azimuth Adjustment, Speed (2.0 ~ 5.0 m/s), Yaw Rate.
+
+---
+
+## ၆။ Drone ၏ အဆင့်ဆင့် ထိန်းချုပ်မှု (Finite State Machine)
+
+Guidance Node အတွင်း၌ ဒရုန်း၏ အခြေအနေကို အောက်ပါ State (၅) ခုဖြင့် စီမံထိန်းချုပ်ထားပါသည်:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> TAKE_OFF
-    TAKE_OFF --> SEARCHING : အမြင့်ရောက် + hover_thrust OK
-    SEARCHING --> INTERCEPT : ပစ်မှတ် တွေ့ရှိ
-    INTERCEPT --> TRACK_LOST : lost_frames ≥ 90
-    TRACK_LOST --> INTERCEPT : ပြန်တွေ့ရှိ
-    INTERCEPT --> DONE : အကွာအဝေး < 0.8m (ဝင်တိုက်မှု)
+    [*] --> TAKE_OFF: Arm & Climb to Standby Altitude (-6m)
+    TAKE_OFF --> SEARCHING: Standby Alt ရောက်ရှိပြီး ငြိမ်သွားချိန်
+    SEARCHING --> INTERCEPT: Camera တွင် ပစ်မှတ် BBox တွေ့ရှိချိန်
+    INTERCEPT --> TRACK_LOST: ပစ်မှတ် ပျောက်ဆုံးချိန် (> 90 Frames)
+    TRACK_LOST --> SEARCHING: Search Yaw Rotation ဖြင့် ရှာမတွေ့ချိန်
+    TRACK_LOST --> INTERCEPT: ပစ်မှတ်ကို ပြန်လည်တွေ့ရှိချိန်
+    INTERCEPT --> DONE: ပစ်မှတ်နှင့် အကွာအဝေး < 0.8m (ထိမှန်ဖမ်းဆီးခြင်း)
+    DONE --> [*]
+```
 
-    state INTERCEPT {
-        [*] --> PolicyInference : 20Hz
-        PolicyInference --> WatchdogPNG : NaN/Inf ဒါမှမဟုတ် Speed > 7.5m/s
-        WatchdogPNG --> PolicyInference : 20 Frame (1 စက္ကန့်) ပြီးရင် ပြန်ပြောင်း
-    }
+1. **`TAKE_OFF`**: ဒရုန်းကို Arm လုပ်ပြီး Standby Altitude (ဥပမာ- ၆ မီတာ) အမြင့်သို့ တက်ရောက်စေသည်။
+2. **`SEARCHING`**: သတ်မှတ်အမြင့်တွင် ငြိမ်ငြိမ်ရပ် (Hover) ပြီး ကင်မရာထဲ ပစ်မှတ်ရောက်လာမည့် အချိန်ကို စောင့်သည်။
+3. **`INTERCEPT`**: Guidance Law (PNG သို့မဟုတ် RL) ဖြင့် ပစ်မှတ်ဆီသို့ အရှိန်တင်၍ ဖြတ်တောက် ပျံသန်းသည်။
+4. **`TRACK_LOST`**: ပစ်မှတ် ခေတ္တပျောက်သွားပါက အရှိန်ထိန်း ပျံသန်းပြီး၊ ကြာရှည်ပျောက်ပါက ခေါင်းလှည့်၍ ပြန်လည်ရှာဖွေသည်။
+5. **`DONE`**: ပစ်မှတ်နှင့် အကွာအဝေးသည် Hit Radius (0.8 မီတာ) အတွင်း ရောက်ရှိသွားပါက ရပ်တန့်သည်။
+
+---
+
+## ၇။ ပစ်မှတ် ဒရုန်း၏ ပျံသန်းမှု Mode များ (`uav_target_sim`)
+
+စမ်းသပ်မှုများ ပြုလုပ်ရာတွင် ပစ်မှတ် Drone (Drone 2) သည် အောက်ပါ Mode (၃) ခုဖြင့် လှုပ်ရှားနိုင်ပါသည်:
+
+| Mode | Parameter | ပျံသန်းမှု ပုံစံ | အသုံးဝင်ပုံ |
+|---|---|---|---|
+| **ဝိုင်းပတ်ပျံသန်းခြင်း** | `circle` (Default) | $R=5\text{m}$, အမြန်နှုန်း ပုံမှန်ဖြင့် စက်ဝိုင်းပုံ ပျံသန်း | အခြေခံ Intercept စွမ်းရည် စမ်းသပ်ရန် |
+| **လှိုင်းတွန့်ပျံသန်းခြင်း** | `sinusoidal` | ရှေ့သို့ $1\text{ m/s}$ သွားရင်း ဘေးဘက်သို့ S-curve ပုံစံ ကွေ့ဝိုက် | ဘေးဘက်တိမ်းရှောင်သော ပစ်မှတ်အား စမ်းသပ်ရန် |
+| **ကျပန်း လှုပ်ရှားခြင်း** | `random_walk` | အရှိန်နှင့် ဦးတည်ရာကို ကျပန်းပြောင်းလဲ ($< 3\text{ m/s}$) | ခန့်မှန်းရခက်သော တကယ့် အခြေအနေများကို စမ်းသပ်ရန် |
+
+---
+
+## ၈။ လုံခြုံရေး Watchdog အကာအကွယ်စနစ်
+
+RL Guidance Model သုံးစွဲနေစဉ် မော်ဒယ်မှ အမှားအယွင်းများ ထွက်ပေါ်လာပါက ဒရုန်း ပျက်ကျမှုမဖြစ်စေရန် C++ Node အတွင်း **Watchdog Mechanism** ပါရှိသည်:
+
+```mermaid
+flowchart TD
+    INF["RL Inference (20 Hz)"] --> CHK{"Output ပုံမှန် ဟုတ်/မဟုတ်?"}
+    CHK -- "ပုံမှန်" --> EXEC["Execute RL Velocity Command"]
+    CHK -- "NaN / Inf ထွက်ခြင်း\nသို့မဟုတ် Speed > 7.5 m/s\nသို့မဟုတ် ONNX Error" --> FB["🚨 Trigger Watchdog Fallback\nClassical PNG Controller သို့ ချက်ချင်းလွှဲပြောင်း"]
+    FB --> LATCH["PNG ဖြင့် အနည်းဆုံး ၂၀ Frame (၁ စက္ကန့်) ဆက်လက်ထိန်းချုပ်"]
+    LATCH --> RESET["Reset GRU Hidden State"]
+    RESET --> INF
 ```
 
 ---
 
-## ၉။ Watchdog အကာအကွယ် ယန္တရား
+## ၉။ Simulation စတင် မောင်းနှင်ပုံ အဆင့်ဆင့် (Execution Steps)
 
-| ဖြစ်ပေါ်မှု အကြောင်းရင်း | ကိုင်တွယ်မှု |
-|---|---|
-| Policy Output တွင် NaN/Inf ပါဝင် | PNG Fallback၊ 20 Frame ဆက်ထိမ်း၊ GRU Hidden State Reset |
-| Speed > 1.5 × speed_cmd (7.5 m/s) | တူညီသည် |
-| ONNX Runtime Error ဖြစ် | တူညီသည် |
+```bash
+# အဆင့် ၁: Terminal 1 — Gazebo Sim နှင့် Dual Drone စတင်ပါ
+cd /home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone
+./run_swarm.sh
 
-Fallback ကာလ: PNG Controller ထိန်းချုပ်သည်၊ GRU State ဆက်သိမ်းထားသည်၊ 20 Frame ပြီးရင် Policy ပြန်သုံး
+# အဆင့် ၂: Terminal 2 — Target Simulator ကို run ပါ
+ros2 run uav_target_sim uav_target_sim
 
----
+# အဆင့် ၃: Terminal 3 — Perception Node (YOLO + Tracker) ကို run ပါ
+ros2 run uav_vision_dectect uav_vision_dectect
 
-## ၁၀။ အဓိက File များ လင့်ခ်
+# အဆင့် ၄: Terminal 4 — Guidance Node ကို run ပါ (RL Mode)
+ros2 launch uav_rl_guidance rl_guidance.launch.py
 
-| File | လုပ်ဆောင်ချက် |
-|---|---|
-| [rl_guidance_node.cpp](file:///home/hmue_gyi/Desktop/Git/Autonomous-Intercept-Drone/uav_rl_guidance/src/rl_guidance_node.cpp) | RL Guidance Node ၏ C++ အပြည့်အစုံ အကောင်အထည်ဖော်မှု |
-| [export_onnx.py](file:///home/hmue_gyi/Desktop/Git/Autonomous-Intercept-Drone/uav_rl_guidance/src/export_onnx.py) | TorchScript → ONNX ပြောင်းလဲ Script |
-| [policy_meta.json](file:///home/hmue_gyi/Desktop/Git/Autonomous-Intercept-Drone/uav_rl_guidance/models/policy_meta.json) | Model Metadata (ဆင့်များ၊ Camera Parameters၊ Hit Rate) |
-| [params.yaml](file:///home/hmue_gyi/Desktop/Git/Autonomous-Intercept-Drone/uav_rl_guidance/config/params.yaml) | RL Node Parameter ဆက်တင်များ |
-| [uav_target_sim.cpp](file:///home/hmue_gyi/Desktop/Git/Autonomous-Intercept-Drone/uav_target_sim/src/uav_target_sim.cpp) | ပစ်မှတ် လှုပ်ရှားမှု Simulator |
-| [run_swarm.sh](file:///home/hmue_gyi/Desktop/Git/Autonomous-Intercept-Drone/run_swarm.sh) | Dual Drone Simulation စတင်ရေး Script |
+# (မှတ်ချက် - PNG သာ သုံးလိုပါက အောက်ပါအတိုင်း run နိုင်သည်)
+# ros2 launch uav_rl_guidance rl_guidance.launch.py fallback_png:=true
+```
 
 ---
 
-## ၁၁။ အနှစ်ချုပ်
+## ၁၀။ အနှစ်ချုပ်နှင့် အဓိက လေ့လာသင့်သော ဖိုင်များ
 
-> [!IMPORTANT]
-> **RL Policy သည် Gazebo/PX4 SITL ထဲတွင် Train ထားခြင်း မဟုတ်ဘဲ၊ [AeroIntercept](https://github.com/Eaglewzw/AeroIntercept) Repo ၏ Custom Python Simulation တွင် BC+PPO ဖြင့် Train ထားသည်။**
-
-1. **Train ပြုလုပ်သည့်နေရာ** — AeroIntercept Custom Python Simulation (`guidance_rl/`)
-2. **Train နည်းလမ်း** — PNG ကို Copy (BC) → PPO ဖြင့် ကောင်းမွန်အောင် ဆက်လုပ်
-3. **ရလဒ်** — **97% Hit Rate** (100 ကြိမ်တိုက်ရင် 97 ကြိမ် အောင်မြင်)
-4. **Deploy** — ONNX Format ဖြင့် C++ Node တွင် 20Hz Real-time Inference (PyTorch လုံးဝ မလို)
-5. **A/B နှိုင်းယှဉ်** — `fallback_png:=true` ဖြင့် PNG Baseline နှင့် တိုင်းတာနိုင်
-6. **အကာအကွယ်** — Watchdog ကြောင့် AI မပျက်ရ — PNG ကို အချိန်မရွေး ချက်ချင်း Fallback
+* [`01_Interceptor Drone.md`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/01_Interceptor%20Drone.md) — Drone 1 ၏ Topics နှင့် အသေးစိတ် Hardware/Algorithm ရှင်းလင်းချက်
+* [`02_Model.md`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/02_Model.md) — အသုံးပြုထားသော AI Model (၄) ခု၏ အသေးစိတ် အချက်အလက်များ
+* [`03_how_to_train_lightTrack.md`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/03_how_to_train_lightTrack.md) — Single Object Tracker Train ပြုလုပ်နည်း လမ်းညွှန်
+* [`04_how_to_train_RL.md`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/04_how_to_train_RL.md) — Reinforcement Learning Guidance Model Train ပြုလုပ်နည်း လမ်းညွှန်
+* [`uav_rl_guidance/src/rl_guidance_node.cpp`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance/src/rl_guidance_node.cpp) — အဓိက RL Guidance C++ Implementation
