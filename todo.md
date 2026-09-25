@@ -28,6 +28,9 @@ sudo apt install -y apache2-utils libgeographic-dev ros-humble-geographic-msgs
 PX4 Simulation ထဲတွင် ဤ Project ၏ Custom World (`grass_world`) နှင့် Multi-drone script တို့ကို အသုံးပြုနိုင်ရန် ဖိုင်များကို PX4 directory သို့ ကူးထည့်ပေးရပါမည်:
 
 ```bash
+cd ~;
+git clone https://github.com/PX4/PX4-Autopilot.git --recursive
+
 # Autonomous_Intercept_Drone လမ်းကြောင်းသို့ သွားပါ
 cd /home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone
 
