@@ -31,10 +31,17 @@ find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 # ONNX Runtime
-find_library(ONNXRUNTIME_LIB onnxruntime PATHS /usr/local/lib REQUIRED)
-find_library(ONNXRUNTIME_CUDA_LIB onnxruntime_providers_cuda PATHS /usr/local/lib)
-find_library(ONNXRUNTIME_SHARED_LIB onnxruntime_providers_shared PATHS /usr/local/lib)
-include_directories(/usr/local/include)
+set(ONNXRUNTIME_ROOT "" CACHE PATH "Root directory of a native ONNX Runtime installation")
+find_path(ONNXRUNTIME_INCLUDE_DIR onnxruntime_cxx_api.h
+  HINTS "${ONNXRUNTIME_ROOT}/include" /usr/local/include
+  REQUIRED)
+find_library(ONNXRUNTIME_LIB onnxruntime
+  HINTS "${ONNXRUNTIME_ROOT}/lib" /usr/local/lib
+  REQUIRED)
+find_library(ONNXRUNTIME_CUDA_LIB onnxruntime_providers_cuda
+  HINTS "${ONNXRUNTIME_ROOT}/lib" /usr/local/lib)
+find_library(ONNXRUNTIME_SHARED_LIB onnxruntime_providers_shared
+  HINTS "${ONNXRUNTIME_ROOT}/lib" /usr/local/lib)
 message(STATUS "ONNX Runtime: ${ONNXRUNTIME_LIB}")
 
 if(BUILD_TESTING)
@@ -57,13 +64,21 @@ add_executable(uav_vision_dectect
         src/yolo_detector.cpp
 )
 
+target_include_directories(uav_vision_dectect PRIVATE ${ONNXRUNTIME_INCLUDE_DIR})
+
 target_link_libraries(uav_vision_dectect
         ${OpenCV_LIBS}
         ${OpenMP_CXX_LIBRARIES}
         ${ONNXRUNTIME_LIB}
-        ${ONNXRUNTIME_CUDA_LIB}
-        ${ONNXRUNTIME_SHARED_LIB}
 )
+
+if(ONNXRUNTIME_CUDA_LIB)
+  target_link_libraries(uav_vision_dectect ${ONNXRUNTIME_CUDA_LIB})
+endif()
+
+if(ONNXRUNTIME_SHARED_LIB)
+  target_link_libraries(uav_vision_dectect ${ONNXRUNTIME_SHARED_LIB})
+endif()
 
 #添加节点的依赖
 ament_target_dependencies(uav_vision_dectect
