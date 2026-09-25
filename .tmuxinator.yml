@@ -1,0 +1,34 @@
+# ./.tmuxinator.yml
+
+name: intercept_drone
+root: /home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone
+
+pre_window: export PS1=" \[$(tput sgr0)\]\[$(tput bold)\]\[\033[38;5;45m\]>>>\[$(tput sgr0)\] \[$(tput sgr0)\]"; source /opt/ros/humble/setup.bash; source install/setup.bash 2>/dev/null || true
+
+startup_window: InterceptMiss# ./.tmuxinator.yml
+
+name: ROM Dynamics 
+root: ~/
+
+pre_window: export PS1=" \[$(tput sgr0)\]\[$(tput bold)\]\[\033[38;5;45m\]>>>\[$(tput sgr0)\] \[$(tput sgr0)\]"
+
+# USE ROM_ROBOT_MODEL as ( bobo | yoyo | rom2109 ) in BASHRC
+
+startup_window: Main
+# startup_pane: 0
+
+windows:
+  - InterceptMission:
+      layout: tiled
+      panes:
+        # Pane 1: PX4 Dual SITL + Gazebo Simulation + DDS Bridge
+        - clear; cd ~/PX4-Autopilot && ./run_swarm.sh
+
+        # Pane 2: Drone 2 (Target Drone) Movement Controller
+        - clear; sleep 15; ros2 run uav_target_sim uav_target_sim
+
+        # Pane 3: Drone 1 (Interceptor Drone) Perception — YOLOv5 + LightTrack
+        - clear; sleep 17; ros2 run uav_vision_dectect uav_vision_dectect
+
+        # Pane 4: Drone 1 (Interceptor Drone) Guidance — RL GRU Policy
+        - clear; sleep 20; ros2 launch uav_rl_guidance rl_guidance.launch.py
