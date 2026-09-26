@@ -9,12 +9,12 @@
 #include <memory> 
 
 
-// 定义模型路径 (建议改为 ROS2 参数加载)
+// Model လမ်းကြောင်းကို သတ်မှတ်သည် (ROS2 parameter အဖြစ် ပြောင်းသုံးရန် အကြံပြုသည်)
 const std::string YOLO_ENGINE_PATH = "src/uav_vision_dectect/model/yolov5/GDUT_UAV.onnx";
 
 void UavTopicSubscrib::initTensorRT()
 {
-    // 配置并初始化 YOLO 检测器
+    // YOLO detector ကို ပြင်ဆင်သတ်မှတ်ပြီး အစပြုသည်
     DetectorConfig config;
     config.modelPath = YOLO_ENGINE_PATH;
     config.confThreshold = 0.4f;
@@ -44,17 +44,17 @@ UavTopicSubscrib::~UavTopicSubscrib()
 
 UavTopicSubscrib::UavTopicSubscrib() : Node("uav_vision_dectect")
 {
-    /***********************************局部跟踪器初始化***********************************/
+    /***********************************ဒေသဆိုင်ရာ ခြေရာခံကိရိယာ အစပြုသတ်မှတ်ခြင်း***********************************/
     std::string init_model = "/home/verser/ros2_ws/src/uav_vision_dectect/model/light_track/lighttrack_init";
     std::string update_model = "/home/verser/ros2_ws/src/uav_vision_dectect/model/light_track/lighttrack_update";
 
     siam_tracker = new LightTrack(init_model.c_str(), update_model.c_str());
 
-    /***********************************初始化TensorRT***********************************/
+    /***********************************TensorRT အစပြုသတ်မှတ်ခြင်း***********************************/
     initTensorRT();
 
 
-    /***********************************话题订阅***********************************/
+    /***********************************Topic Subscription***********************************/
     uav_image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
         "/camera/image",
         10,
@@ -76,14 +76,14 @@ void UavTopicSubscrib::uav_detect_result_loop()
     while (rclcpp::ok())
     {
         pub_uav_result_rect.header = std_msgs::msg::Header();
-        pub_uav_result_rect.header.stamp = this->now(); // 建议加上时间戳
+        pub_uav_result_rect.header.stamp = this->now(); // အချိန်တံဆိပ် (timestamp) ထည့်သွင်းရန် အကြံပြုသည်
         pub_uav_result_rect.x = uav_result_rect.x;
         pub_uav_result_rect.y = uav_result_rect.y;
         pub_uav_result_rect.width = uav_result_rect.width;
         pub_uav_result_rect.height = uav_result_rect.height;
         pub_uav_result_rect.depth = 0;
 
-        // 降低日志频率，避免刷屏
+        // log ထုတ်ပေးမှု အကြိမ်ရေကို လျှော့ချပြီး မျက်နှာပြင်ပြည့်သွားခြင်းကို ရှောင်ရှားသည်
         // RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 1000, 
         //     "Detect_result: %d %d %d %d", uav_result_rect.x, uav_result_rect.y, uav_result_rect.width, uav_result_rect.height);
         
@@ -96,7 +96,7 @@ void UavTopicSubscrib::uav_detect_result_loop()
 void UavTopicSubscrib::image_callback(const sensor_msgs::msg::Image::SharedPtr msg)
 {
     // ===========================
-    // 1. 图像转换 (cv_bridge)
+    // 1. ပုံရိပ် ပြောင်းလဲခြင်း (cv_bridge)
     // ===========================
     cv_bridge::CvImagePtr cv_ptr;
     try
@@ -109,16 +109,16 @@ void UavTopicSubscrib::image_callback(const sensor_msgs::msg::Image::SharedPtr m
         return;
     }
 
-    // 浅拷贝/深拷贝处理
-    cv::Mat frame = cv_ptr->image.clone(); // 建议 clone 一份，避免多线程修改 uav_camera_frame 冲突
-    uav_camera_frame = frame; // 如果其他线程只读，可以直接赋值引用
+    // shallow copy/deep copy ကိုင်တွယ်ခြင်း
+    cv::Mat frame = cv_ptr->image.clone(); // thread များစွာက uav_camera_frame ကို ပြင်ဆင်မှု ပဋိပက္ခမဖြစ်စေရန် clone တစ်ခု ပြုလုပ်ရန် အကြံပြုသည်
+    uav_camera_frame = frame; // အခြား thread များက ဖတ်ရုံသာ ပြုလုပ်ပါက reference ကို တိုက်ရိုက်သတ်မှတ်နိုင်သည်
 
 
     // ===========================
-    // 2. 模式控制
+    // 2. Mode ထိန်းချုပ်ခြင်း
     // ===========================
-    // true: 丢失目标时用YOLO重识别，识别后启动跟踪; false: 纯YOLO检测
-    bool enable_tracking = true; // TODO: 建议改为 ROS Param
+    // true: target ပျောက်ဆုံးသွားပါက YOLO ဖြင့်ပြန်မှတ်သားပြီး ခြေရာခံမှု စတင်သည်; false: YOLO detection သီးသန့်
+    bool enable_tracking = true; // TODO: ROS Param အဖြစ် ပြောင်းသုံးရန် အကြံပြုသည်
 
     cv::Rect result_rect(-1, -1, -1, -1);      
     bool target_found = false; 
@@ -128,18 +128,18 @@ void UavTopicSubscrib::image_callback(const sensor_msgs::msg::Image::SharedPtr m
     double t = (double)cv::getTickCount();
 
     // ===========================
-    // 3. 核心逻辑分支
+    // 3. အဓိက logic ခွဲခြမ်းမှု
     // ===========================
     bool need_yolo_detection = (!enable_tracking) || (enable_tracking && light_track_flag == 0);
 
-    // 检查检测器是否初始化成功
+    // detector အောင်မြင်စွာ အစပြုနိုင်မနိုင် စစ်ဆေးသည်
     if (need_yolo_detection && yolo_detector_)
     {
 
-        // 使用封装好的 YoloDetector 进行推理 ---
+        // ပြင်ဆင်ပြီးသား YoloDetector ကို အသုံးပြုပြီး inference ပြုလုပ်သည် ---
         std::vector<Detection> results = yolo_detector_->detect(frame);
 
-        // 寻找最佳目标 (置信度最高)
+        // အကောင်းဆုံး target ကို ရှာဖွေသည် (confidence အမြင့်ဆုံး)
         float best_score = 0;
         cv::Rect best_rect;
         bool has_valid_detection = false;
@@ -154,26 +154,26 @@ void UavTopicSubscrib::image_callback(const sensor_msgs::msg::Image::SharedPtr m
             }
         }
 
-        // --- 检测结果处理 ---
-        if (has_valid_detection && best_score > 0.8) // 0.3 为业务逻辑的过滤阈值，可调
+        // --- စစ်ဆေးမှုရလဒ် ကိုင်တွယ်ခြင်း ---
+        if (has_valid_detection && best_score > 0.8) // 0.3 သည် business logic filter threshold ဖြစ်ပြီး ချိန်ညှိနိုင်သည်
         {
             cv::Rect safe_rect = best_rect & cv::Rect(0, 0, frame.cols, frame.rows);
             
-            // 检查框的有效性
+            // box ၏ မှန်ကန်မှုကို စစ်ဆေးသည်
             if (safe_rect.width > 0 && safe_rect.height > 0 && safe_rect.area() >= 10) 
             {
                 if (!enable_tracking)
                 {
-                    // [模式A: 仅检测]
+                    // [Mode A: detection သီးသန့်]
                     result_rect = safe_rect;
                     target_found = true;
                     status_text = "YOLO Detect (Score: " + std::to_string(best_score).substr(0, 4) + ")";
-                    color = cv::Scalar(0, 0, 255); // 红色框
+                    color = cv::Scalar(0, 0, 255); // အနီရောင် box
                     light_track_flag = 0; 
                 }
                 else
                 {
-                    // [模式B: 跟踪初始化]
+                    // [Mode B: ခြေရာခံမှု အစပြုခြင်း]
                     light_track_flag = 1; 
                     this->trackWindow = safe_rect;
                     
@@ -190,14 +190,14 @@ void UavTopicSubscrib::image_callback(const sensor_msgs::msg::Image::SharedPtr m
                     result_rect = safe_rect;
                     target_found = true;
                     status_text = "Global Track Init";
-                    color = cv::Scalar(255, 0, 0); // 蓝色框表示初始化
+                    color = cv::Scalar(255, 0, 0); // အပြာရောင် box သည် အစပြုခြင်းကို ဖော်ပြသည်
                 }
             }
         }
     }
 
     // ===========================
-    // 4. 跟踪逻辑
+    // 4. ခြေရာခံမှု logic
     // ===========================
     if (enable_tracking && light_track_flag == 1 && !need_yolo_detection)
     {
@@ -213,24 +213,24 @@ void UavTopicSubscrib::image_callback(const sensor_msgs::msg::Image::SharedPtr m
             result_rect = safe_rect;
             target_found = true;
             status_text = "Tracking";
-            color = cv::Scalar(0, 255, 0); // 绿色框
+            color = cv::Scalar(0, 255, 0); // အစိမ်းရောင် box
         }
         else
         {
             status_text = "Track Lost";
-            light_track_flag = 0; // 丢失，下帧转回 YOLO
+            light_track_flag = 0; // ပျောက်ဆုံးသွားသည်၊ နောက် frame တွင် YOLO သို့ ပြန်ပြောင်းသည်
         }
     }
 
     // ===========================
-    // 5. 结果更新与 PNP 解算
+    // 5. ရလဒ် update ပြုလုပ်ခြင်းနှင့် PNP တွက်ချက်ခြင်း
     // ===========================
     if (target_found)
     {
         uav_result_rect = result_rect;
 
-        // 绘制 (这里保留你原本的绘制逻辑，因为你有根据状态变色的需求)
-        // 也可以混合使用 YoloDetector::draw，但它颜色是固定的
+        // ရေးဆွဲခြင်း (status အလိုက် အရောင်ပြောင်းရန် လိုအပ်ချက်ရှိသောကြောင့် မူရင်း ရေးဆွဲခြင်း logic ကို ဤနေရာတွင် ထားရှိသည်)
+        // YoloDetector::draw ကိုလည်း ရောနှော အသုံးပြုနိုင်သော်လည်း၊ ၎င်း၏ အရောင်မှာ ပုံသေ ဖြစ်သည်
         cv::rectangle(frame, result_rect, color, 2);
         cv::putText(frame, status_text, cv::Point(20, 40), cv::FONT_HERSHEY_SIMPLEX, 0.8, color, 2);
 
@@ -245,7 +245,7 @@ void UavTopicSubscrib::image_callback(const sensor_msgs::msg::Image::SharedPtr m
     }
 
     // ===========================
-    // 6. 显示与帧率
+    // 6. ပြသခြင်းနှင့် frame rate
     // ===========================
     double fps = cv::getTickFrequency() / ((double)cv::getTickCount() - t);
     std::string frameLabel = "FPS: " + std::to_string(fps).substr(0, 5);
@@ -257,7 +257,7 @@ void UavTopicSubscrib::image_callback(const sensor_msgs::msg::Image::SharedPtr m
     cv::waitKey(1);
 }
 
-// 辅助函数保持不变
+// အကူအညီ function မပြောင်းလဲပါ
 void UavTopicSubscrib::cxy_wh_2_rect(const cv::Point& pos, const cv::Point2f& sz, cv::Rect &rect)
 {
     rect.x = std::max(0, pos.x - int(sz.x / 2));

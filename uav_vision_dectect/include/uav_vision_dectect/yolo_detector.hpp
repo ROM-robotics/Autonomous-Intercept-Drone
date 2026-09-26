@@ -5,14 +5,14 @@
 #include <opencv2/opencv.hpp>
 #include <onnxruntime_cxx_api.h>
 
-// 检测结果结构体
+// စစ်ဆေးတွေ့ရှိမှု ရလဒ် struct
 struct Detection {
     cv::Rect box;
     float conf;
     int classId;
 };
 
-// 检测器配置参数
+// စစ်ဆေးကိရိယာ ပြင်ဆင်သတ်မှတ်ချက် paramaters
 struct DetectorConfig {
     float confThreshold = 0.4f;
     float iouThreshold = 0.45f;
@@ -23,20 +23,20 @@ struct DetectorConfig {
 
 class YoloDetector {
 public:
-    // 构造函数
+    // Constructor
     explicit YoloDetector(const DetectorConfig& config);
 
-    // 析构函数
+    // Destructor
     ~YoloDetector() = default;
 
-    // 禁止拷贝，只允许移动
+    // ကူးယူခြင်းကို တားမြစ်ထားပြီး ရွှေ့ခြင်းကိုသာ ခွင့်ပြုသည်
     YoloDetector(const YoloDetector&) = delete;
     YoloDetector& operator=(const YoloDetector&) = delete;
 
-    // 核心检测函数：输入图片，返回检测结果列表
+    // အဓိက စစ်ဆေးသည့် function: ပုံအား ထည့်သွင်းပြီး စစ်ဆေးမှုရလဒ်စာရင်းကို ပြန်ပေးသည်
     std::vector<Detection> detect(const cv::Mat& img);
 
-    // 静态辅助函数：将检测结果绘制到图片上
+    // static အကူအညီ function: စစ်ဆေးမှုရလဒ်များကို ပုံပေါ်တွင် ရေးဆွဲသည်
     static void draw(cv::Mat& img, const std::vector<Detection>& objects);
 
 private:
@@ -44,7 +44,7 @@ private:
     void nms(std::vector<Detection>& dets, float nms_thresh);
     static float iou(const Detection& a, const Detection& b);
 
-    // 成员变量
+    // အဖွဲ့ဝင် ကိန်းရှင်များ
     DetectorConfig config_;
     Ort::Env env_;
     Ort::Session session_;

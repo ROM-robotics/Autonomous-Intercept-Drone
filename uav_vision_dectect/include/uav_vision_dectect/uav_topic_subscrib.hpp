@@ -24,7 +24,7 @@ class UavTopicSubscrib : public rclcpp::Node
         cv::Mat uav_camera_frame;
         cv::Rect uav_result_rect;
         UavTopicSubscrib();
-        // 析构函数释放资源
+        // Destructor - အရင်းအမြစ်များကို ဖယ်ရှားသည်
         ~UavTopicSubscrib();
 
 
@@ -43,16 +43,16 @@ class UavTopicSubscrib : public rclcpp::Node
         cv_bridge::CvImagePtr orig_cv_ptr;
 
 
-        /************************LightTrack跟踪部分************************/
+        /************************LightTrack ခြေရာခံခြင်း အပိုင်း************************/
         cv::Rect trackWindow;
         cv::Mat init_window;
 
         LightTrack *siam_tracker;
         int light_track_flag = 0;
 
-        /************************YOLO Detector 资源成员变量************************/
+        /************************YOLO Detector အရင်းအမြစ် အဖွဲ့ဝင် ကိန်းရှင်များ************************/
 
-        // 初始化 YOLO Detector 的函数
+        // YOLO Detector ကို အစပြုသတ်မှတ်သည့် function
         void initTensorRT();
 
         std::unique_ptr<YoloDetector> yolo_detector_;

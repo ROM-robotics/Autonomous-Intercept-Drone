@@ -15,7 +15,7 @@ int main(int argc, char const *argv[])
 {
     rclcpp::init(argc, argv);
 
-    //图像检测节点
+    // ပုံရိပ် စစ်ဆေးမှု node
     auto uav_image_detector_node = std::make_shared<UavTopicSubscrib>();
 
     // auto uav_offboard_control_node = std::make_shared<UavControl>();
