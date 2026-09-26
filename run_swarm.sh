@@ -4,7 +4,7 @@
 # PX4 双机仿真启动脚本
 # Drone 1: gz_x500_depth (带深度相机, Instance 1)
 # Drone 2: gz_x500       (普通版,     Instance 2)
-# 世界: grass_world
+# 世界: baylands
 # =======================================================
 
 set -e
@@ -50,21 +50,21 @@ fi
 
 # -------------------------------------------------------
 # 2. 启动 MicroXRCEAgent (ROS 2 通信桥)
-# -------------------------------------------------------
-echo ""
-echo "📡 正在启动 MicroXRCEAgent..."
-MicroXRCEAgent udp4 -p 8888 2>&1 | rotatelogs -n $LOG_MAX_FILES agent.log $LOG_MAX_SIZE &
-PID_AGENT=$!
-echo "   -> Agent PID: $PID_AGENT (日志: agent.log, 最大 ${LOG_MAX_SIZE} x${LOG_MAX_FILES})"
-sleep 2
+# # -------------------------------------------------------
+# echo ""
+# echo "📡 正在启动 MicroXRCEAgent..."
+# MicroXRCEAgent udp4 -p 8888 2>&1 | rotatelogs -n $LOG_MAX_FILES agent.log $LOG_MAX_SIZE &
+# PID_AGENT=$!
+# echo "   -> Agent PID: $PID_AGENT (日志: agent.log, 最大 ${LOG_MAX_SIZE} x${LOG_MAX_FILES})"
+# sleep 2
 
 # -------------------------------------------------------
 # 3. 启动第一架无人机 (带深度相机, Instance 1)
-#    同时拉起 Gazebo 仿真服务器 + grass_world
+#    同时拉起 Gazebo 仿真服务器 + baylands
 # -------------------------------------------------------
 echo ""
 echo "🚀 正在启动 Drone 1 (gz_x500_depth, Instance 1)..."
-PX4_GZ_WORLD=grass_world \
+PX4_GZ_WORLD=baylands \
 PX4_SYS_AUTOSTART=4002 \
 PX4_GZ_MODEL_POSE="0,0" \
 PX4_SIM_MODEL=gz_x500_depth \
@@ -85,7 +85,7 @@ sleep 15
 
 	cat > /tmp/camera_bridge.yaml << 'YEOF'
 - ros_topic_name: "/camera/image"
-  gz_topic_name: "/world/grass_world/model/x500_depth_1/link/camera_link/sensor/IMX214/image"
+  gz_topic_name: "/world/baylands/model/x500_depth_1/link/camera_link/sensor/IMX214/image"
   ros_type_name: "sensor_msgs/msg/Image"
   gz_type_name: "gz.msgs.Image"
   direction: GZ_TO_ROS
@@ -101,7 +101,7 @@ YEOF
 echo ""
 echo "🚀 正在启动 Drone 2 (gz_x500, Instance 2)..."
 PX4_GZ_STANDALONE=1 \
-PX4_GZ_WORLD=grass_world \
+PX4_GZ_WORLD=baylands \
 PX4_SYS_AUTOSTART=4001 \
 PX4_GZ_MODEL_POSE="20,0" \
 PX4_SIM_MODEL=gz_x500 \
@@ -123,7 +123,7 @@ echo "  Camera Bridge  : PID $PID_BRIDGE"
 echo "------------------------------------------------"
 echo "  日志限制        : 每个最大 ${LOG_MAX_SIZE}，保留 ${LOG_MAX_FILES} 个文件"
 echo "  相机话题        : /camera/image"
-echo "  世界地图        : grass_world"
+echo "  世界地图        : baylands"
 echo "  Drone 1 位置   : (0,  0)"
 echo "  Drone 2 位置   : (0, 20)"
 echo "================================================"

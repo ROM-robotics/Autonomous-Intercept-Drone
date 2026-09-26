@@ -1,6 +1,6 @@
 # 🚁 Autonomous Intercept Drone — စနစ်ခွဲခြမ်းစိတ်ဖြာမှု မှတ်တမ်း
 
-> **Repository**: [Autonomous_Intercept_Drone](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone)  
+> **Repository**: [Autonomous_Intercept_Drone](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone)  
 > **အဓိက နည်းပညာများ**: ROS 2 Humble, PX4 Autopilot (SITL v1.16), Gazebo Sim (Harmonic), C++, ONNX Runtime  
 > **စာတမ်းရည်ရွယ်ချက်**: ဤ Project ၏ အစိတ်အပိုင်းများ၊ ROS 2 Packages များ၊ Perception မှ Guidance ထိန်းချုပ်မှုအထိ အလုပ်လုပ်ပုံနှင့် RL Model အသုံးချပုံတို့ကို ရှင်းလင်းလွယ်ကူစွာ နားလည်နိုင်စေရန် ရေးသားထားပါသည်။
 
@@ -89,19 +89,19 @@ flowchart TD
 
 | Package အမည် | တာဝန်ယူထားသည့် အခန်းကဏ္ဍ | အဓိကဖိုင်များ |
 |---|---|---|
-| [`uav_vision_dectect`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect) | ကင်မရာပုံရိပ်မှ ပစ်မှတ်ဒရုန်းကို ရှာဖွေပြီး Bounding Box ထုတ်ပေးခြင်း | [`uav_topic_subscrib.cpp`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect/src/uav_topic_subscrib.cpp) |
-| [`uav_rl_guidance`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance) | **အဓိက Guidance စနစ်** — GRU Policy (ONNX Runtime) ဖြင့် အမြန်နှုန်း အမိန့်များ ထုတ်ပေးခြင်း | [`rl_guidance_node.cpp`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance/src/rl_guidance_node.cpp) |
-| [`uav_vision_png`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_png) | **Baseline Guidance စနစ်** — Classical သင်္ချာနည်း (PNG) ဖြင့် ထိန်းကျောင်းခြင်း | [`vision_png_control.cpp`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_png/src/vision_png_control.cpp) |
-| [`uav_target_sim`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_target_sim) | ပစ်မှတ်ဒရုန်း (Drone 2) အား လှုပ်ရှားပျံသန်းစေရန် Trajectory ဖန်တီးပေးခြင်း | [`uav_target_sim.cpp`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_target_sim/src/uav_target_sim.cpp) |
-| [`uav_common_msg`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_common_msg) | Node များအချင်းချင်း ဒေတာဖလှယ်ရာတွင် သုံးသော Custom Messages (`RectMsg`, `Data`) | `RectMsg.msg`, `Data.msg` |
-| [`px4_msgs`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/px4_msgs) | PX4 Autopilot နှင့် တိုက်ရိုက် ဆက်သွယ်သော ROS 2 Messages များ | `TrajectorySetpoint.msg`, စသည် |
+| [`uav_vision_dectect`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect) | ကင်မရာပုံရိပ်မှ ပစ်မှတ်ဒရုန်းကို ရှာဖွေပြီး Bounding Box ထုတ်ပေးခြင်း | [`uav_topic_subscrib.cpp`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect/src/uav_topic_subscrib.cpp) |
+| [`uav_rl_guidance`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance) | **အဓိက Guidance စနစ်** — GRU Policy (ONNX Runtime) ဖြင့် အမြန်နှုန်း အမိန့်များ ထုတ်ပေးခြင်း | [`rl_guidance_node.cpp`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance/src/rl_guidance_node.cpp) |
+| [`uav_vision_png`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_png) | **Baseline Guidance စနစ်** — Classical သင်္ချာနည်း (PNG) ဖြင့် ထိန်းကျောင်းခြင်း | [`vision_png_control.cpp`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_png/src/vision_png_control.cpp) |
+| [`uav_target_sim`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_target_sim) | ပစ်မှတ်ဒရုန်း (Drone 2) အား လှုပ်ရှားပျံသန်းစေရန် Trajectory ဖန်တီးပေးခြင်း | [`uav_target_sim.cpp`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_target_sim/src/uav_target_sim.cpp) |
+| [`uav_common_msg`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_common_msg) | Node များအချင်းချင်း ဒေတာဖလှယ်ရာတွင် သုံးသော Custom Messages (`RectMsg`, `Data`) | `RectMsg.msg`, `Data.msg` |
+| [`px4_msgs`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/px4_msgs) | PX4 Autopilot နှင့် တိုက်ရိုက် ဆက်သွယ်သော ROS 2 Messages များ | `TrajectorySetpoint.msg`, စသည် |
 
 ### ခ။ အထောက်အကူပြု နှင့် စမ်းသပ်မှု Packages (Utilities & Legacy)
 
-* [`px4_ros_com`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/px4_ros_com): PX4 နှင့် ROS 2 ကြား အချိန်နှင့်တပြေးညီ ချိတ်ဆက်မှု အထောက်အကူပြု Library။
-* [`uav_bc_recorder`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_bc_recorder): Behavioral Cloning အတွက် ပျံသန်းမှု ဒေတာများ စုဆောင်းမှတ်တမ်းတင်သည့် Node။
-* [`uav_keyboard_control`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_keyboard_control): စမ်းသပ်ရာတွင် ဒရုန်းကို လက်ဖြင့် Keyboard ဖြင့် ထိန်းချုပ်မောင်းနှင်နိုင်သည့် Node။
-* [`uav_png_intercept`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_png_intercept) / [`uav_ibvs_control`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_ibvs_control): ယခင် အစောပိုင်း သုတေသနပြုလုပ်ခဲ့သော ရှေးဟောင်း Guidance Node များ (လက်ရှိတွင် `uav_vision_png` နှင့် `uav_rl_guidance` ဖြင့် အစားထိုးထားပြီးဖြစ်သည်)။
+* [`px4_ros_com`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/px4_ros_com): PX4 နှင့် ROS 2 ကြား အချိန်နှင့်တပြေးညီ ချိတ်ဆက်မှု အထောက်အကူပြု Library။
+* [`uav_bc_recorder`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_bc_recorder): Behavioral Cloning အတွက် ပျံသန်းမှု ဒေတာများ စုဆောင်းမှတ်တမ်းတင်သည့် Node။
+* [`uav_keyboard_control`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_keyboard_control): စမ်းသပ်ရာတွင် ဒရုန်းကို လက်ဖြင့် Keyboard ဖြင့် ထိန်းချုပ်မောင်းနှင်နိုင်သည့် Node။
+* [`uav_png_intercept`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_png_intercept) / [`uav_ibvs_control`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_ibvs_control): ယခင် အစောပိုင်း သုတေသနပြုလုပ်ခဲ့သော ရှေးဟောင်း Guidance Node များ (လက်ရှိတွင် `uav_vision_png` နှင့် `uav_rl_guidance` ဖြင့် အစားထိုးထားပြီးဖြစ်သည်)။
 
 ---
 
@@ -121,7 +121,7 @@ Interceptor Drone တွင် အသုံးပြုနိုင်သော 
 
 ## ၅။ RL Guidance Model လေ့ကျင့်ထားပုံ (RL Training Summary)
 
-> အသေးစိတ် လေ့ကျင့်ပုံအပြည့်အစုံကို [04_how_to_train_RL.md](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/04_how_to_train_RL.md) တွင် သီးသန့်ဖော်ပြထားပါသည်။
+> အသေးစိတ် လေ့ကျင့်ပုံအပြည့်အစုံကို [04_how_to_train_RL.md](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/04_how_to_train_RL.md) တွင် သီးသန့်ဖော်ပြထားပါသည်။
 
 ```mermaid
 flowchart LR
@@ -198,7 +198,7 @@ flowchart TD
 
 ```bash
 # အဆင့် ၁: Terminal 1 — Gazebo Sim နှင့် Dual Drone စတင်ပါ
-cd /home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone
+cd /home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone
 ./run_swarm.sh
 
 # အဆင့် ၂: Terminal 2 — Target Simulator ကို run ပါ
@@ -218,8 +218,8 @@ ros2 launch uav_rl_guidance rl_guidance.launch.py
 
 ## ၁၀။ အနှစ်ချုပ်နှင့် အဓိက လေ့လာသင့်သော ဖိုင်များ
 
-* [`01_Interceptor Drone.md`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/01_Interceptor%20Drone.md) — Drone 1 ၏ Topics နှင့် အသေးစိတ် Hardware/Algorithm ရှင်းလင်းချက်
-* [`02_Model.md`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/02_Model.md) — အသုံးပြုထားသော AI Model (၄) ခု၏ အသေးစိတ် အချက်အလက်များ
-* [`03_how_to_train_lightTrack.md`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/03_how_to_train_lightTrack.md) — Single Object Tracker Train ပြုလုပ်နည်း လမ်းညွှန်
-* [`04_how_to_train_RL.md`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/04_how_to_train_RL.md) — Reinforcement Learning Guidance Model Train ပြုလုပ်နည်း လမ်းညွှန်
-* [`uav_rl_guidance/src/rl_guidance_node.cpp`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance/src/rl_guidance_node.cpp) — အဓိက RL Guidance C++ Implementation
+* [`01_Interceptor Drone.md`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/01_Interceptor%20Drone.md) — Drone 1 ၏ Topics နှင့် အသေးစိတ် Hardware/Algorithm ရှင်းလင်းချက်
+* [`02_Model.md`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/02_Model.md) — အသုံးပြုထားသော AI Model (၄) ခု၏ အသေးစိတ် အချက်အလက်များ
+* [`03_how_to_train_lightTrack.md`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/03_how_to_train_lightTrack.md) — Single Object Tracker Train ပြုလုပ်နည်း လမ်းညွှန်
+* [`04_how_to_train_RL.md`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/04_how_to_train_RL.md) — Reinforcement Learning Guidance Model Train ပြုလုပ်နည်း လမ်းညွှန်
+* [`uav_rl_guidance/src/rl_guidance_node.cpp`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance/src/rl_guidance_node.cpp) — အဓိက RL Guidance C++ Implementation

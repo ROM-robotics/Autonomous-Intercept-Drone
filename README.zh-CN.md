@@ -116,7 +116,7 @@
 ### 2. 编译项目
 ```bash
 # 进入工作空间并编译
-cd ros2_ws
+cd dev_ws
 colcon build --symlink-install
 source install/setup.bash
 ```
@@ -130,10 +130,10 @@ source install/setup.bash
 
    ```bash
    # 步骤1: 将本仓库的 run_swarm.sh 复制到 PX4-Autopilot 根目录（若尚未复制）
-   cp ros2_ws/src/run_swarm.sh ~/PX4-Autopilot/
+   cp dev_ws/src/run_swarm.sh ~/PX4-Autopilot/
 
    # 步骤2: 将自定义世界文件复制到 PX4 Gazebo 世界目录
-   cp ros2_ws/src/assets/gazebo_world/grass_world.sdf ~/PX4-Autopilot/Tools/simulation/gz/worlds/
+   cp dev_ws/src/assets/gazebo_world/grass_world.sdf ~/PX4-Autopilot/Tools/simulation/gz/worlds/
    ```
 
    > 以上步骤只需执行一次。之后每次启动仿真，直接进入 PX4-Autopilot 目录运行启动脚本即可：

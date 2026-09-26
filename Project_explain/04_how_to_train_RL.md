@@ -25,7 +25,7 @@ flowchart LR
 | **Hidden Units** | 1 Layer GRU (Hidden Size: 128) |
 | **Inference Framework** | **ONNX Runtime (C++)** — Zero PyTorch runtime dependency |
 | **ရရှိထားသော အောင်မြင်မှုနှုန်း** | **97% Hit Rate** (Target Interception Success) |
-| **ဖိုင်တည်နေရာများ** | PyTorch Checkpoint: [`uav_rl_guidance/models/policy.pt`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance/models/policy.pt)<br>ONNX Model: [`uav_rl_guidance/models/policy.onnx`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance/models/policy.onnx)<br>Metadata: [`uav_rl_guidance/models/policy_meta.json`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance/models/policy_meta.json) |
+| **ဖိုင်တည်နေရာများ** | PyTorch Checkpoint: [`uav_rl_guidance/models/policy.pt`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance/models/policy.pt)<br>ONNX Model: [`uav_rl_guidance/models/policy.onnx`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance/models/policy.onnx)<br>Metadata: [`uav_rl_guidance/models/policy_meta.json`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance/models/policy_meta.json) |
 
 ---
 
@@ -89,7 +89,7 @@ flowchart TD
 
 ## ၅။ အာရုံခံ Input အချက်အလက်များ (15-Dimensional Observation)
 
-C++ Node ([`uav_rl_guidance/src/rl_guidance_node.cpp`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance/src/rl_guidance_node.cpp)) ရှိ `build_features()` လုပ်ဆောင်ချက်နှင့် 1:1 တူညီစွာ တည်ဆောက်ထားသော Observation Feature (၁၅) ခု ဖြစ်ပါသည်-
+C++ Node ([`uav_rl_guidance/src/rl_guidance_node.cpp`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance/src/rl_guidance_node.cpp)) ရှိ `build_features()` လုပ်ဆောင်ချက်နှင့် 1:1 တူညီစွာ တည်ဆောက်ထားသော Observation Feature (၁၅) ခု ဖြစ်ပါသည်-
 
 | Index | Feature အမည် | ပုံသေနည်း / ဖော်ပြချက် | အဓိပ္ပာယ် နှင့် အသုံးဝင်ပုံ |
 |:---:|---|---|---|
@@ -185,7 +185,7 @@ RL မော်ဒယ်အသစ်အား Train ပြီးပါက Checkp
 
 ```bash
 # ၁။ uav_rl_guidance လမ်းကြောင်းသို့ သွားပါ
-cd /home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance
+cd /home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_rl_guidance
 
 # ၂။ export_onnx.py script ကို run ပါ
 python3 src/export_onnx.py

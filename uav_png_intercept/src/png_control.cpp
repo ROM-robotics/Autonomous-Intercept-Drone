@@ -73,7 +73,7 @@ PngInterceptor::PngInterceptor() : Node("png_interceptor")
 
     // ---------- 订阅：自身速度（px4_1 VehicleLocalPosition）----------
     self_vel_sub_ = create_subscription<VehicleLocalPosition>(
-        "/px4_1/fmu/out/vehicle_local_position", qos,
+        "/px4_1/fmu/out/vehicle_local_position_v1", qos,
         [this](const VehicleLocalPosition::SharedPtr msg) {
             self_vel_ = {msg->vx, msg->vy, msg->vz};
             local_z_ = msg->z;
@@ -82,14 +82,14 @@ PngInterceptor::PngInterceptor() : Node("png_interceptor")
     // ---------- 订阅：目标速度（px4_2 VehicleLocalPosition）----------
     // 速度方向（NED）在两架无人机中是一致的，无需坐标系转换
     target_vel_sub_ = create_subscription<VehicleLocalPosition>(
-        "/px4_2/fmu/out/vehicle_local_position", qos,
+        "/px4_2/fmu/out/vehicle_local_position_v1", qos,
         [this](const VehicleLocalPosition::SharedPtr msg) {
             target_vel_ = {msg->vx, msg->vy, msg->vz};
         });
 
     // ---------- 订阅：飞行状态 ----------
     status_sub_ = create_subscription<VehicleStatus>(
-        "/px4_1/fmu/out/vehicle_status", qos,
+        "/px4_1/fmu/out/vehicle_status_v1", qos,
         [this](const VehicleStatus::SharedPtr msg) {
             nav_state_    = msg->nav_state;
             arming_state_ = msg->arming_state;
@@ -277,13 +277,7 @@ void PngInterceptor::handle_takeoff()
     arm();
     publish_offboard_position_mode();
 
-    // 机头指向目标（与 INTERCEPT 阶段一致）
-    float yaw = std::nanf("");
-    if (target_pos_ok_ && self_pos_ok_) {
-        Eigen::Vector3f R = target_pos_ - self_pos_;
-        yaw = atan2f(R(1), R(0));  // yaw = atan2(East, North)
-    }
-    publish_position_setpoint(0.0f, 0.0f, takeoff_alt_, yaw);
+    publish_position_setpoint(0.0f, 0.0f, takeoff_alt_, std::nanf(""));
 
     RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000,
         "[TAKEOFF] 当前高度 z=%.2f m (目标 %.2f m, 差 %.2f m)",
@@ -409,7 +403,7 @@ void PngInterceptor::publish_vehicle_command(uint16_t command, float p1, float p
 void PngInterceptor::save_data_to_csv() {
     if (!csv_file_.is_open()) {
         // 使用绝对路径，防止找不到文件
-        csv_file_.open("/home/hmue_gyi/ros2_ws/src/uav_png_intercept/intercept_data.csv", std::ios::out);
+        csv_file_.open("/home/mr_robot/dev_ws/src/uav_png_intercept/intercept_data.csv", std::ios::out);
         csv_file_ << "time,s_x,s_y,s_z,t_x,t_y,t_z,dist\n";
     }
 

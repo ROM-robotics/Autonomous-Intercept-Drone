@@ -212,7 +212,7 @@ private:
     Eigen::Vector3d Nt;
 	Eigen::Vector3d last_Nt;
 	//	获取速度向量
-	Eigen::Vector3d Vt;
+	Eigen::Vector3d Vt = Eigen::Vector3d::Zero();
 
 	Eigen::Vector3d d_a;
 	Eigen::Vector3d d_thrust;
@@ -250,7 +250,7 @@ private:
 	double d_v = 0;
 	double real_thrust = 0;
 	float thrust_proportion = 0;
-	int offboard_setpoint_counter_;  
+	int offboard_setpoint_counter_ = 0;
 };
 /**
  * @brief cross product function

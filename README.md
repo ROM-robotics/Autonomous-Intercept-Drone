@@ -112,7 +112,7 @@ The following shows the system performance in typical interception tasks, which 
 ### 2. Build the Project
 ```bash
 # Enter the workspace and build
-cd ros2_ws
+cd dev_ws
 colcon build --symlink-install
 source install/setup.bash
 ```
@@ -126,10 +126,10 @@ Please run each node in a separate terminal in the following order:
 
    ```bash
    # Step 1: Copy the run_swarm.sh script from this repository to the PX4-Autopilot root directory (if not already copied)
-   cp ros2_ws/src/run_swarm.sh ~/PX4-Autopilot/
+   cp dev_ws/src/run_swarm.sh ~/PX4-Autopilot/
 
    # Step 2: Copy the custom world file to the PX4 Gazebo worlds directory
-   cp ros2_ws/src/assets/gazebo_world/grass_world.sdf ~/PX4-Autopilot/Tools/simulation/gz/worlds/
+   cp dev_ws/src/assets/gazebo_world/grass_world.sdf ~/PX4-Autopilot/Tools/simulation/gz/worlds/
    ```
 
    > The above steps only need to be performed once. After that, to start the simulation, simply enter the PX4-Autopilot directory and run the startup script:

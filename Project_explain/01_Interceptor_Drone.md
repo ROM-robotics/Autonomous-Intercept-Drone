@@ -83,7 +83,7 @@ flowchart TD
 ---
 
 ### အဆင့် (၁) - Perception Layer (ပစ်မှတ်ကို ကင်မရာဖြင့် ရှာဖွေခြင်း)
-* **Node**: [`uav_vision_dectect`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect/src/uav_topic_subscrib.cpp)
+* **Node**: [`uav_vision_dectect`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect/src/uav_topic_subscrib.cpp)
 * **Model**: **YOLOv5** (TensorRT / ONNX) + **LightTrack** (SiamTracker)
 * ဒရုန်းရှေ့ရှိ ကင်မရာမှ Video Frame ရောက်လာသည်နှင့် YOLO detector က target drone ကို ရှာဖွေသည်။
 * တွေ့ရှိပါက ပစ်မှတ်၏ မျက်နှာပြင် Bounding Box `(x, y, width, height)` ကို တွက်ထုတ်ပြီး `/camera_detect_result` သို့ publish လုပ်ပေးသည်။
@@ -92,7 +92,7 @@ flowchart TD
 ---
 
 ### အဆင့် (၂) - Line of Sight (LOS) နှင့် Coordinate Transformation
-* **Node**: [`uav_vision_png`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_png/src/vision_png_control.cpp)
+* **Node**: [`uav_vision_png`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_png/src/vision_png_control.cpp)
 * ကင်မရာ ပုံရိပ်၏ အလယ်ဗဟို $(c_x, c_y)$ နှင့် ပစ်မှတ် ဗဟိုကြား ကွာဟချက် (Pixel Errors):
   $$e_x = (x + \frac{w}{2}) - c_x$$
   $$e_y = (y + \frac{h}{2}) - c_y$$
@@ -128,7 +128,7 @@ Interceptor Drone တွင် အောက်ပါ Algorithm များက�
 
 ### အဆင့် (၄) - Finite State Machine (FSM အဆင့်ဆင့် ထိန်းချုပ်မှု)
 
-[`vision_png_control.cpp`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_png/src/vision_png_control.cpp) တွင် ဒရုန်း၏ အခြေအနေကို အောက်ပါ State (၅) ခုဖြင့် စီမံထားပါသည် -
+[`vision_png_control.cpp`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_png/src/vision_png_control.cpp) တွင် ဒရုန်း၏ အခြေအနေကို အောက်ပါ State (၅) ခုဖြင့် စီမံထားပါသည် -
 
 ```mermaid
 stateDiagram-v2

@@ -178,15 +178,15 @@ Export လုပ်ပြီး ရရှိလာသော မော်ဒယ�
 
 1. **ဖိုင်များ ကူးယူပါ**:
    ```bash
-   cp lighttrack_init.onnx /home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect/model/light_track/
-   cp lighttrack_update.onnx /home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect/model/light_track/
+   cp lighttrack_init.onnx /home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect/model/light_track/
+   cp lighttrack_update.onnx /home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect/model/light_track/
    ```
 
 2. **C++ Code ထဲရှိ Model Path ကို စစ်ဆေးပါ**:
-   [`uav_vision_dectect/src/uav_topic_subscrib.cpp`](file:///home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect/src/uav_topic_subscrib.cpp) ၏ Line 48–51 တွင် သင့်လက်ရှိ Folder လမ်းကြောင်း မှန်ကန်ကြောင်း သေချာအောင် စစ်ဆေးပါ:
+   [`uav_vision_dectect/src/uav_topic_subscrib.cpp`](file:///home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect/src/uav_topic_subscrib.cpp) ၏ Line 48–51 တွင် သင့်လက်ရှိ Folder လမ်းကြောင်း မှန်ကန်ကြောင်း သေချာအောင် စစ်ဆေးပါ:
    ```cpp
-   std::string init_model = "/home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect/model/light_track/lighttrack_init";
-   std::string update_model = "/home/hmue_gyi/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect/model/light_track/lighttrack_update";
+   std::string init_model = "/home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect/model/light_track/lighttrack_init";
+   std::string update_model = "/home/mr_robot/Desktop/Git/Autonomous_Intercept_Drone/uav_vision_dectect/model/light_track/lighttrack_update";
    siam_tracker = new LightTrack(init_model.c_str(), update_model.c_str());
    ```
 

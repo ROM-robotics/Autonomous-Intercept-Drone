@@ -50,7 +50,10 @@ uav_chase::uav_chase():Node("uav_ibvs_control")
             }else
             {
                 lost_track = 0;
-                state = State::tracking;
+				if (state == State::image_detect && track_time >= 100)
+				{
+					state = State::tracking;
+				}
             }
 
             auto now = std::chrono::system_clock::now();
@@ -71,7 +74,7 @@ uav_chase::uav_chase():Node("uav_ibvs_control")
 			std::cout<<"roll: "<<roll<<" pitch: "<<pitch<<" yaw: "<<yaw<<std::endl;
         });
         //	创建 速度信息话题接收者
-        local_position_subscription_ = this->create_subscription<VehicleLocalPosition>("/px4_1/fmu/out/vehicle_local_position", qos,
+		local_position_subscription_ = this->create_subscription<VehicleLocalPosition>("/px4_1/fmu/out/vehicle_local_position_v1", qos,
         [this](const VehicleLocalPosition::SharedPtr msg)
         {
             this->vx = msg->vx;
@@ -80,13 +83,10 @@ uav_chase::uav_chase():Node("uav_ibvs_control")
             local_position_z = msg->z;
         });
         //	创建 无人机状态话题接受者
-        VehicleState_subscription_ = this->create_subscription<VehicleStatus>("/px4_1/fmu/out/vehicle_status", qos,
+		VehicleState_subscription_ = this->create_subscription<VehicleStatus>("/px4_1/fmu/out/vehicle_status_v1", qos,
         [this](const VehicleStatus::SharedPtr msg)
         {
-            if(msg->nav_state == msg->NAVIGATION_STATE_OFFBOARD)
-            {
-                this->offboard_state = true;
-            }
+			this->offboard_state = msg->nav_state == msg->NAVIGATION_STATE_OFFBOARD;
         });
 
 
@@ -98,7 +98,7 @@ uav_chase::uav_chase():Node("uav_ibvs_control")
 
 			static std::ofstream log_file;
 			if (!log_file.is_open()) {
-				log_file.open("/home/hmue_gyi/ros2_ws/px4_2_xyz_log.txt", std::ios::out | std::ios::app);
+				log_file.open("/home/mr_robot/dev_ws/px4_2_xyz_log.txt", std::ios::out | std::ios::app);
 				if (!log_file.is_open()) {
 					RCLCPP_ERROR(this->get_logger(), "无法打开日志文件！");
 					return;
@@ -269,21 +269,21 @@ void uav_chase::LOS_calculate()
 			last_LOS_angle_z = LOS_angle_z;
 			// last_v_angle_v = d_v_angle_v;
 			// last_v_angle_z = d_v_angle_z;
-
-			uav_common_msg::msg::Data data_msg{};
-			data_msg.d_v_angle_v = d_v_angle_v;
-			data_msg.d_v_angle_z = d_v_angle_z;
-			data_msg.v_angle_v = atan2(Vt[2], sqrt(Vt[1]*Vt[1]+Vt[0]*Vt[0]));
-			data_msg.v_angle_z = atan2(Vt[0], Vt[1]);
-			data_msg.los_angle_v = LOS_angle_v;
-			data_msg.los_angle_z = LOS_angle_z;
-			data_msg.diff_los_angle_v = diff_LOS_angle_v;
-			data_msg.diff_los_angle_z = diff_LOS_angle_z;
-			data_msg.ex = ex;
-			data_msg.ey = ey;
-			data_plot_publisher_->publish(data_msg);
 		}
 	}
+
+	uav_common_msg::msg::Data data_msg{};
+	data_msg.d_v_angle_v = d_v_angle_v;
+	data_msg.d_v_angle_z = d_v_angle_z;
+	data_msg.v_angle_v = atan2(Vt[2], sqrt(Vt[1]*Vt[1]+Vt[0]*Vt[0]));
+	data_msg.v_angle_z = atan2(Vt[0], Vt[1]);
+	data_msg.los_angle_v = LOS_angle_v;
+	data_msg.los_angle_z = LOS_angle_z;
+	data_msg.diff_los_angle_v = diff_LOS_angle_v;
+	data_msg.diff_los_angle_z = diff_LOS_angle_z;
+	data_msg.ex = ex;
+	data_msg.ey = ey;
+	data_plot_publisher_->publish(data_msg);
 
 	// 使用LOS向量作为速度方向
 	// d_Vt << cos(LOS_angle_v)*sin(LOS_angle_z), 
@@ -364,7 +364,7 @@ void uav_chase::LOS_function()
 
 	thrust_proportion = real_thrust/(m*9.81/hover_thrust);
 	
-	if(Vt.norm()>1)
+	if(Vt.norm()>1 && hover_flag)
 	{
 		publish_offboard_control_mode_att();
 		publish_rates_setpoint(d_w[0],d_w[1],d_w[2],-thrust_proportion);
@@ -405,7 +405,7 @@ void uav_chase::take_off()
 	}
 	// 切换状态
 	else{ 
-		if (hover_flag)
+		if (offboard_state && std::abs(local_position_z + standby_height) < 0.2)
 		{state = State::image_detect;}
 		else
 		{
@@ -444,7 +444,7 @@ void uav_chase::tracker()
         else if(lost_track<30)
         {
         //丢失目标小于30帧但是大于1帧则可能误识别，继续冲击
-            if(Vt.norm()>1)
+			if(Vt.norm()>1 && hover_flag)
             {
                 publish_offboard_control_mode_att();
                 publish_rates_setpoint(d_w[0],d_w[1],d_w[2],-thrust_proportion);

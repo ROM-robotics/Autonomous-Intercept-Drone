@@ -48,9 +48,6 @@ cd /home/username/dev_ws
 
 `colcon build` ကို `src` directory ထဲက မ run ပါနှင့်။ Source packages များသည်-
 
-```text
-/home/username/dev_ws/src/Autonomous_Intercept_Drone/
-```
 
 ## ၃။ ONNX Runtime C++ ကို install လုပ်ပါ
 
@@ -238,3 +235,7 @@ Terminal တစ်ခုချင်းစီတွင် `Ctrl+C` နှိပ�
 ```bash
 killall -9 px4 gz-sim gz-server gz-client MicroXRCEAgent parameter_bridge 2>/dev/null || true
 ```
+
+
+
+လက်ရှိ `px4_msgs` version က **v1.17.0** ဖြစ်ပါတယ်။ PX4 firmware version နဲ့ ကိုက်ညီပါတယ်။)

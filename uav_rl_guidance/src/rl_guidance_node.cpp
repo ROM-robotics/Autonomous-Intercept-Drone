@@ -338,7 +338,7 @@ RLGuidanceNode::RLGuidanceNode()
 {
     // ---- 声明参数 ----
     this->declare_parameter("model_path",
-        "/home/hmue_gyi/ros2_ws/src/uav_rl_guidance/models/policy.onnx");
+        "/home/mr_robot/dev_ws/src/Autonomous_Intercept_Drone/uav_rl_guidance/models/policy.onnx");
     this->declare_parameter("fallback_png", false);
     this->declare_parameter("focal_length", 1397.2f);
     this->declare_parameter("image_width", 1920);
@@ -355,7 +355,7 @@ RLGuidanceNode::RLGuidanceNode()
     this->declare_parameter("lost_thresh", 90);
     this->declare_parameter("hit_radius", 0.8f);
     this->declare_parameter("csv_path",
-        "/home/hmue_gyi/ros2_ws/rl_intercept_stats.csv");
+        "/home/mr_robot/dev_ws/rl_intercept_stats.csv");
     this->declare_parameter("bench_test", false);
     this->declare_parameter("dv_angle_max", 1.2f);
 
@@ -452,10 +452,10 @@ RLGuidanceNode::RLGuidanceNode()
         "/px4_1/fmu/out/vehicle_odometry", qos,
         std::bind(&RLGuidanceNode::odom_cb, this, std::placeholders::_1));
     local_pos_sub_ = this->create_subscription<VehicleLocalPosition>(
-        "/px4_1/fmu/out/vehicle_local_position", qos,
+        "/px4_1/fmu/out/vehicle_local_position_v1", qos,
         std::bind(&RLGuidanceNode::local_pos_cb, this, std::placeholders::_1));
     status_sub_ = this->create_subscription<VehicleStatus>(
-        "/px4_1/fmu/out/vehicle_status", qos,
+        "/px4_1/fmu/out/vehicle_status_v1", qos,
         std::bind(&RLGuidanceNode::status_cb, this, std::placeholders::_1));
     hover_sub_ = this->create_subscription<HoverThrustEstimate>(
         "/px4_1/fmu/out/hover_thrust_estimate", qos,
@@ -532,7 +532,8 @@ void RLGuidanceNode::handle_takeoff()
     }
 
     float alt_err = std::abs(local_z_ - standby_altitude_);
-    if (hover_thrust_ok_ && alt_err < 0.5f) {
+    bool stable_at_altitude = alt_err < 0.5f && std::abs(vz_) < 0.3f;
+    if (offboard_active_ && stable_at_altitude) {
         RCLCPP_INFO(this->get_logger(),
             "→ 起飞完成 z=%.2f，进入 SEARCHING", local_z_);
         state_ = RLState::SEARCHING;
@@ -542,7 +543,7 @@ void RLGuidanceNode::handle_takeoff()
 void RLGuidanceNode::handle_searching()
 {
     publish_offboard_velocity_mode();
-    publish_velocity_setpoint(0, 0, 0, 0);
+    publish_velocity_setpoint(0, 0, 0, search_yaw_rate_);
     // 检测回调切换到 INTERCEPT
 }
 
