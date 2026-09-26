@@ -3,7 +3,7 @@
 name: Autonomous_Intercept_Drone
 root: ~/
 
-pre_window: source /opt/ros/humble/setup.bash; source /home/hmue_gyi/dev_ws/install/setup.bash 2>/dev/null || true; export PS1=" \[$(tput sgr0)\]\[$(tput bold)\]\[\033[38;5;45m\]>>>\[$(tput sgr0)\] \[$(tput sgr0)\]"
+pre_window: source /opt/ros/humble/setup.bash; source /home/mr_robot/dev_ws/install/setup.bash 2>/dev/null || true; export PS1=" \[$(tput sgr0)\]\[$(tput bold)\]\[\033[38;5;45m\]>>>\[$(tput sgr0)\] \[$(tput sgr0)\]"
 
 # USE ROM_ROBOT_MODEL as ( bobo | yoyo | rom2109 ) in BASHRC
 
@@ -14,15 +14,25 @@ windows:
   - Main:
       root: ~/
       panes:
-        - clear; cd ~/PX4-Autopilot && if [ ! -x build/px4_sitl_default/bin/px4 ]; then make px4_sitl gz_x500; fi && ./run_swarm.sh
+        - clear; cd ~/Desktop/PX4-Autopilot && if [ ! -x build/px4_sitl_default/bin/px4 ]; then make px4_sitl gz_x500; fi && ./run_swarm.sh
+        # - clear; cd /home/mr_robot/Desktop/PX4-Autopilot; PX4_SYS_AUTOSTART=4001 PX4_GZ_WORLD=baylands PX4_SIM_MODEL=gz_x500_mono_cam ./build/px4_sitl_default/bin/px4 -i 1
+        # - clear; cd /home/mr_robot/Desktop/PX4-Autopilot; sleep 8; PX4_GZ_STANDALONE=1 PX4_GZ_WORLD=baylands PX4_SYS_AUTOSTART=4002 PX4_GZ_MODEL_POSE="-1,0,0,0,0,0" PX4_SIM_MODEL=gz_x500_mono_cam ./build/px4_sitl_default/bin/px4 -i 2
+  - Drone1 Keyboard:
+      root: ~/
+      panes:
+        - clear; ros2 run uav_keyboard_control uav_keyboard_control
+  - Micro_XRCE_DDS:
+      root: ~/
+      panes:
+         - clear;MicroXRCEAgent udp4 -p 8888
   - TargetSimulator:
       root: ~/
       panes:
         - clear; ros2 launch uav_target_sim target_sim.launch.py motion_mode:=circle
-  - VisionPNG:
+  - RL guidance:
       root: ~/
       panes:
-        - clear; ros2 launch uav_vision_png vision_png.launch.py
+        - clear; ros2 launch uav_rl_guidance rl_guidance.launch.py
   - VisionDetection:
       root: ~/
       panes:
