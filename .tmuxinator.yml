@@ -1,7 +1,7 @@
 # ./.tmuxinator.yml
 
 name: Autonomous_Intercept_Drone
-root: /home/hmue_gyi/dev_ws/src/Autonomous_Intercept_Drone
+root: ~/
 
 pre_window: source /opt/ros/humble/setup.bash; source /home/hmue_gyi/dev_ws/install/setup.bash 2>/dev/null || true; export PS1=" \[$(tput sgr0)\]\[$(tput bold)\]\[\033[38;5;45m\]>>>\[$(tput sgr0)\] \[$(tput sgr0)\]"
 
@@ -12,18 +12,18 @@ startup_window: Main
 
 windows:
   - Main:
-      root: /home/hmue_gyi/dev_ws/src/Autonomous_Intercept_Drone
+      root: ~/
       panes:
         - clear; cd ~/PX4-Autopilot && if [ ! -x build/px4_sitl_default/bin/px4 ]; then make px4_sitl gz_x500; fi && ./run_swarm.sh
   - TargetSimulator:
-      root: /home/hmue_gyi/dev_ws/src/Autonomous_Intercept_Drone
+      root: ~/
       panes:
         - clear; ros2 launch uav_target_sim target_sim.launch.py motion_mode:=circle
   - VisionPNG:
-      root: /home/hmue_gyi/dev_ws/src/Autonomous_Intercept_Drone
+      root: ~/
       panes:
         - clear; ros2 launch uav_vision_png vision_png.launch.py
   - VisionDetection:
-      root: /home/hmue_gyi/dev_ws/src/Autonomous_Intercept_Drone
+      root: ~/
       panes:
         - clear; ros2 run uav_vision_dectect uav_vision_dectect
